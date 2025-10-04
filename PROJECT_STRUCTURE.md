@@ -255,7 +255,7 @@ npm run build
 ## Port Configuration
 
 - **Frontend**: http://localhost:3000
-- **Backend**: http://localhost:5000
+- **Backend**: http://localhost:5001
 - **MongoDB**: mongodb://localhost:27017/unitracker
 
 ---

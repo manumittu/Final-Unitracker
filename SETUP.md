@@ -87,7 +87,7 @@ cd ..
 
 3. Edit the `.env` file with your configuration:
    ```env
-   PORT=5000
+   PORT=5001
    MONGODB_URI=mongodb://localhost:27017/unitracker
    # OR for MongoDB Atlas:
    # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/unitracker
@@ -134,7 +134,7 @@ This will start both the frontend and backend concurrently.
 
 You should see:
 ```
-[backend] 🚀 Server running on port 5000
+[backend] 🚀 Server running on port 5001
 [backend] ✅ MongoDB connected
 [frontend] VITE v5.x.x  ready in xxx ms
 [frontend] ➜  Local:   http://localhost:3000/
@@ -144,7 +144,7 @@ You should see:
 
 Open your browser and navigate to:
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+- **Backend API**: http://localhost:5001
 
 ## Test Accounts
 
@@ -169,7 +169,7 @@ After seeding the database, use these credentials to log in:
 
 ### Port Already in Use
 
-If port 3000 or 5000 is already in use:
+If port 3000 or 5001 is already in use:
 
 1. **Frontend (port 3000)**:
    - Edit `frontend/vite.config.js` and change the port:
@@ -179,16 +179,16 @@ If port 3000 or 5000 is already in use:
      }
      ```
 
-2. **Backend (port 5000)**:
+2. **Backend (port 5001)**:
    - Edit `backend/.env` and change:
      ```env
-     PORT=5001
+     PORT=5002
      ```
    - Also update the proxy in `frontend/vite.config.js`:
      ```js
      proxy: {
        '/api': {
-         target: 'http://localhost:5001',
+         target: 'http://localhost:5002',
        }
      }
      ```

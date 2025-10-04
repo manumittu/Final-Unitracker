@@ -121,7 +121,7 @@ npm run seed
 
 The application will be available at:
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+- **Backend API**: http://localhost:5001
 
 ### Detailed Installation
 
@@ -163,7 +163,7 @@ The application will be available at:
    
    Create a `.env` file in the `backend` directory:
    ```env
-   PORT=5000
+   PORT=5001
    MONGODB_URI=mongodb://localhost:27017/unitracker
    JWT_SECRET=your-secret-key-change-this-in-production
    NODE_ENV=development
@@ -205,7 +205,7 @@ npm run dev
 
 The application will be available at:
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+- **Backend API**: http://localhost:5001
 
 #### Production Build
 
