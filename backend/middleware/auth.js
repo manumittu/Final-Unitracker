@@ -23,3 +23,10 @@ export const isAdmin = (req, res, next) => {
   }
   next();
 };
+
+export const isProfessor = (req, res, next) => {
+  if (req.user.role !== 'professor' && req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Access denied. Professor or Admin only.' });
+  }
+  next();
+};

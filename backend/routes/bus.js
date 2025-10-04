@@ -112,4 +112,34 @@ router.post('/routes', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
+// Admin: Update route
+router.put('/routes/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const updatedRoute = await BusRoute.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedRoute) {
+      return res.status(404).json({ msg: 'Route not found' });
+    }
+    res.json(updatedRoute);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Delete route
+router.delete('/routes/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const route = await BusRoute.findByIdAndDelete(req.params.id);
+    if (!route) {
+      return res.status(404).json({ msg: 'Route not found' });
+    }
+    res.json({ message: 'Route deleted' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 export default router;
