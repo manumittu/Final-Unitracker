@@ -5,15 +5,17 @@ import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 
+// Module imports
+import CoursesModule from './modules/courses/CoursesModule';
+import LostFoundModule from './modules/lostFound/LostFoundModule';
+
 // Placeholder components for modules (will be created later)
 const TimetableModule = () => <div className="p-8">Timetable Module - Coming Soon</div>;
 const QuizModule = () => <div className="p-8">Quiz Module - Coming Soon</div>;
 const FeedbackModule = () => <div className="p-8">Feedback Module - Coming Soon</div>;
-const LostFoundModule = () => <div className="p-8">Lost & Found Module - Coming Soon</div>;
 const ProjectsModule = () => <div className="p-8">Projects Module - Coming Soon</div>;
 const BusModule = () => <div className="p-8">Bus Reservation Module - Coming Soon</div>;
 const GradeAppealModule = () => <div className="p-8">Grade Appeal Module - Coming Soon</div>;
-const CoursesModule = () => <div className="p-8">Courses Module - Coming Soon</div>;
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
