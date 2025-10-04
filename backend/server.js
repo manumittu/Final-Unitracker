@@ -8,6 +8,11 @@ import authRoutes from './routes/auth.js';
 import courseRoutes from './routes/courses.js';
 import timetableRoutes from './routes/timetable.js';
 import quizRoutes from './routes/quizzes.js';
+import feedbackRoutes from './routes/feedback.js';
+import lostFoundRoutes from './routes/lostFound.js';
+import projectRoutes from './routes/projects.js';
+import busRoutes from './routes/bus.js';
+import gradeAppealRoutes from './routes/gradeAppeals.js';
 
 dotenv.config();
 
@@ -19,10 +24,7 @@ app.use(cors());
 
 // Database connection
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
@@ -35,13 +37,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/timetable', timetableRoutes);
 app.use('/api/quizzes', quizRoutes);
-
-// TODO: Add remaining routes
-// app.use('/api/feedback', feedbackRoutes);
-// app.use('/api/lost-found', lostFoundRoutes);
-// app.use('/api/projects', projectRoutes);
-// app.use('/api/bus', busRoutes);
-// app.use('/api/grade-appeals', gradeAppealRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/lost-found', lostFoundRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/bus', busRoutes);
+app.use('/api/grade-appeals', gradeAppealRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
