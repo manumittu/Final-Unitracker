@@ -6,21 +6,34 @@ A comprehensive monorepo integrating 10 different college management modules int
 
 ### Integrated Modules
 
-1. **Landing Page & Authentication** - Entry point with secure login system
-2. **Course Management** - Full CRUD operations for courses
-3. **Timetable Management** - Create and view class schedules
-4. **Quiz Management** - Create quizzes and track results
-5. **Faculty Feedback** - Submit and review faculty feedback
-6. **Lost & Found** - Report and track lost/found items
-7. **Project Idea Submission** - Submit and approve project proposals
+1. **Landing Page & Authentication** - Entry point with secure JWT-based login system
+2. **Course Management** - Full CRUD operations for courses (Admin), view-only for students
+3. **Timetable Management** - Create and view class schedules (Coming Soon)
+4. **Quiz Management** - Create quizzes and track results (Coming Soon)
+5. **Faculty Feedback** - Submit feedback (Students), review all feedback (Admin)
+6. **Lost & Found** - Report and track lost/found items (All users)
+7. **Project Idea Submission** - Submit project ideas (Students), approve/reject (Admin)
 8. **Bus Reservation** - Book transportation (Coming Soon)
-9. **Grade Appeals** - Submit and manage grade appeal requests (Coming Soon)
+9. **Grade Appeals** - Submit appeals (Students), review & respond (Admin)
 
 ### Role-Based Access Control
 
-- **Admin**: Full access to all modules with creation, editing, and management capabilities
-- **Student**: View and participate in modules (submit feedback, attend quizzes, etc.)
-- **Professor**: Similar to students with additional teaching capabilities
+- **Admin**: 
+  - Full CRUD access to courses
+  - View all faculty feedback
+  - Approve/reject project submissions
+  - Review and respond to grade appeals
+  - Create and manage timetables
+  - Create quizzes and view all results
+
+- **Student/Professor**: 
+  - View courses
+  - Submit faculty feedback
+  - Report lost/found items
+  - Submit project ideas
+  - Submit grade appeals
+  - Attend quizzes and view own results
+  - View timetables
 
 ## 🏗️ Tech Stack
 
@@ -73,6 +86,36 @@ unitracker-monorepo/
 ```
 
 ## 🚀 Getting Started
+
+### Quick Start (Recommended)
+
+```bash
+# 1. Clone and navigate
+git clone https://github.com/manumittu/Final-Unitracker.git
+cd Final-Unitracker
+
+# 2. Install all dependencies at once
+npm run install:all
+
+# 3. Set up environment variables
+cd backend
+cp .env.example .env
+# Edit .env with your MongoDB URI and JWT secret
+nano .env
+
+# 4. Start MongoDB (if using local)
+mongod
+
+# 5. Run the application (from root directory)
+cd ..
+npm run dev
+```
+
+The application will be available at:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+
+### Detailed Installation
 
 ### Prerequisites
 
@@ -221,31 +264,78 @@ All components are customizable through Tailwind CSS classes.
 ### Authentication
 - `POST /api/auth/signup` - Register new user
 - `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user
+- `GET /api/auth/me` - Get current user (protected)
 
 ### Courses
-- `GET /api/courses` - Get all courses
-- `GET /api/courses/:id` - Get single course
+- `GET /api/courses` - Get all courses (protected)
+- `GET /api/courses/:id` - Get single course (protected)
 - `POST /api/courses` - Create course (Admin only)
 - `PUT /api/courses/:id` - Update course (Admin only)
 - `DELETE /api/courses/:id` - Delete course (Admin only)
 
 ### Timetable
-- `GET /api/timetable` - Get timetable
+- `GET /api/timetable` - Get timetable (protected)
 - `POST /api/timetable` - Create/update timetable (Admin only)
 - `DELETE /api/timetable` - Delete timetable (Admin only)
 
 ### Quizzes
-- `GET /api/quizzes` - Get all quizzes
-- `GET /api/quizzes/:id` - Get single quiz
+- `GET /api/quizzes` - Get all quizzes (protected)
+- `GET /api/quizzes/:id` - Get single quiz (protected)
 - `POST /api/quizzes` - Create quiz (Admin only)
 - `PUT /api/quizzes/:id` - Update quiz (Admin only)
 - `DELETE /api/quizzes/:id` - Delete quiz (Admin only)
-- `POST /api/quizzes/:id/submit` - Submit quiz answers
-- `GET /api/quizzes/:id/results` - Get user's results
+- `POST /api/quizzes/:id/submit` - Submit quiz answers (protected)
+- `GET /api/quizzes/:id/results` - Get user's results (protected)
 - `GET /api/quizzes/results/all` - Get all results (Admin only)
 
+### Feedback
+- `GET /api/feedback` - Get all feedback (Admin only)
+- `POST /api/feedback` - Submit feedback (protected)
+
+### Lost & Found
+- `GET /api/lost-found` - Get all items (protected)
+- `GET /api/lost-found/:id` - Get single item (protected)
+- `POST /api/lost-found` - Create item (protected)
+- `PUT /api/lost-found/:id` - Update item (protected, owner only)
+- `DELETE /api/lost-found/:id` - Delete item (protected, owner only)
+
+### Projects
+- `GET /api/projects` - Get all projects (protected, filtered by role)
+- `GET /api/projects/:id` - Get single project (protected)
+- `POST /api/projects` - Submit project (protected)
+- `PUT /api/projects/:id/status` - Update project status (Admin only)
+
+### Bus Reservations
+- `GET /api/bus/routes` - Get all routes (protected)
+- `GET /api/bus/bookings` - Get bookings (protected, filtered by role)
+- `POST /api/bus/bookings` - Create booking (protected)
+- `DELETE /api/bus/bookings/:id` - Cancel booking (protected)
+- `POST /api/bus/routes` - Create route (Admin only)
+
+### Grade Appeals
+- `GET /api/grade-appeals` - Get all appeals (protected, filtered by role)
+- `GET /api/grade-appeals/:id` - Get single appeal (protected)
+- `POST /api/grade-appeals` - Submit appeal (protected)
+- `PUT /api/grade-appeals/:id/status` - Update appeal status (Admin only)
+
 ## 🔧 Development
+
+### Module Implementation Status
+
+✅ **Fully Implemented:**
+- Landing Page with modern design
+- Authentication (Login/Signup) with JWT
+- Dashboard with role-based module cards
+- Courses Module (CRUD operations)
+- Lost & Found Module (Report & browse items)
+- Faculty Feedback Module (Submit & view feedback)
+- Projects Module (Submit & approve projects)
+- Grade Appeals Module (Submit & review appeals)
+
+🚧 **In Progress:**
+- Timetable Management Module
+- Quiz Management Module
+- Bus Reservation Module
 
 ### Adding New Modules
 
