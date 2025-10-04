@@ -109,7 +109,15 @@ mongod
 # 5. Run the application (from root directory)
 cd ..
 npm run dev
+
+# 6. (Optional) Seed the database with sample data
+npm run seed
 ```
+
+**Sample Credentials (after seeding):**
+- Admin: `admin@unitracker.com` / `password123`
+- Student: `student@unitracker.com` / `password123`
+- Professor: `professor@unitracker.com` / `password123`
 
 The application will be available at:
 - **Frontend**: http://localhost:3000
@@ -215,22 +223,31 @@ The application will be available at:
 
 ## 👥 Default Users
 
-For testing, you can create users with different roles:
+After running the seed script (`npm run seed`), you can use these test accounts:
 
 **Admin Account:**
 - Email: admin@unitracker.com
-- Password: admin123
+- Password: password123
 - Role: Admin
+- Access: Full access to all modules
 
 **Student Account:**
 - Email: student@unitracker.com
-- Password: student123
+- Password: password123
 - Role: Student
+- Access: View courses, submit feedback, report lost items, submit projects and appeals
 
 **Professor Account:**
 - Email: professor@unitracker.com
-- Password: professor123
+- Password: password123
 - Role: Professor
+- Access: Similar to student with teaching capabilities
+
+The seed script also creates:
+- 5 sample courses (CS101, CS201, MATH101, ENG101, PHY101)
+- 3 bus routes (Campus Express, City Shuttle, Hostel Line)
+
+To reset and reseed the database, simply run `npm run seed` again.
 
 ## 📱 Usage
 
