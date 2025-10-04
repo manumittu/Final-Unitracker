@@ -2,6 +2,8 @@
 
 A comprehensive monorepo integrating 10 different college management modules into a single unified application with role-based access control.
 
+> **🚀 Quick Start:** See [RUN_COMMANDS.md](RUN_COMMANDS.md) for complete instructions on how to run this application with port 5001.
+
 ## 🌟 Features
 
 ### Integrated Modules
