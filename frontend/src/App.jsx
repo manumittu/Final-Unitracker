@@ -8,14 +8,14 @@ import DashboardPage from './pages/DashboardPage';
 // Module imports
 import CoursesModule from './modules/courses/CoursesModule';
 import LostFoundModule from './modules/lostFound/LostFoundModule';
+import FeedbackModule from './modules/feedback/FeedbackModule';
+import ProjectsModule from './modules/projects/ProjectsModule';
+import GradeAppealModule from './modules/gradeAppeal/GradeAppealModule';
 
 // Placeholder components for modules (will be created later)
 const TimetableModule = () => <div className="p-8">Timetable Module - Coming Soon</div>;
 const QuizModule = () => <div className="p-8">Quiz Module - Coming Soon</div>;
-const FeedbackModule = () => <div className="p-8">Feedback Module - Coming Soon</div>;
-const ProjectsModule = () => <div className="p-8">Projects Module - Coming Soon</div>;
 const BusModule = () => <div className="p-8">Bus Reservation Module - Coming Soon</div>;
-const GradeAppealModule = () => <div className="p-8">Grade Appeal Module - Coming Soon</div>;
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
