@@ -98,6 +98,9 @@ export const busAPI = {
   getBookings: () => api.get('/bus/bookings'),
   createBooking: (data) => api.post('/bus/bookings', data),
   cancelBooking: (id) => api.delete(`/bus/bookings/${id}`),
+  createRoute: (data) => api.post('/bus/routes', data),
+  updateRoute: (id, data) => api.put(`/bus/routes/${id}`, data),
+  deleteRoute: (id) => api.delete(`/bus/routes/${id}`),
 };
 
 // Grade Appeal API

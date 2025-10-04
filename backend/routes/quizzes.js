@@ -1,6 +1,6 @@
 import express from 'express';
 import { Quiz, QuizResult } from '../models/Quiz.js';
-import { authenticateToken, isAdmin } from '../middleware/auth.js';
+import { authenticateToken, isAdmin, isProfessor } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -27,8 +27,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Create quiz (admin only)
-router.post('/', authenticateToken, isAdmin, async (req, res) => {
+// Create quiz (professor and admin)
+router.post('/', authenticateToken, isProfessor, async (req, res) => {
   try {
     const newQuiz = new Quiz({
       ...req.body,
@@ -41,8 +41,8 @@ router.post('/', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
-// Update quiz (admin only)
-router.put('/:id', authenticateToken, isAdmin, async (req, res) => {
+// Update quiz (professor and admin)
+router.put('/:id', authenticateToken, isProfessor, async (req, res) => {
   try {
     const updatedQuiz = await Quiz.findByIdAndUpdate(
       req.params.id,
@@ -58,8 +58,8 @@ router.put('/:id', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
-// Delete quiz (admin only)
-router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
+// Delete quiz (professor and admin)
+router.delete('/:id', authenticateToken, isProfessor, async (req, res) => {
   try {
     const quiz = await Quiz.findByIdAndDelete(req.params.id);
     if (!quiz) {

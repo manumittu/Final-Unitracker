@@ -10,12 +10,12 @@ A comprehensive monorepo integrating 10 different college management modules int
 
 1. **Landing Page & Authentication** - Entry point with secure JWT-based login system
 2. **Course Management** - Full CRUD operations for courses (Admin), view-only for students
-3. **Timetable Management** - Create and view class schedules (Coming Soon)
-4. **Quiz Management** - Create quizzes and track results (Coming Soon)
+3. **Timetable Management** - Create and view class schedules (Admin can create/edit, Students view only)
+4. **Quiz Management** - Create quizzes and track results (Admin & Professors can create, Students can attempt)
 5. **Faculty Feedback** - Submit feedback (Students), review all feedback (Admin)
 6. **Lost & Found** - Report and track lost/found items (All users)
 7. **Project Idea Submission** - Submit project ideas (Students), approve/reject (Admin)
-8. **Bus Reservation** - Book transportation (Coming Soon)
+8. **Bus Reservation** - Book transportation (Admin can manage routes, All users can book)
 9. **Grade Appeals** - Submit appeals (Students), review & respond (Admin)
 
 ### Role-Based Access Control
@@ -27,15 +27,23 @@ A comprehensive monorepo integrating 10 different college management modules int
   - Review and respond to grade appeals
   - Create and manage timetables
   - Create quizzes and view all results
+  - Manage bus routes and view all bookings
 
-- **Student/Professor**: 
+- **Professor**: 
+  - Create, edit, and delete quizzes
+  - View all quiz results
+  - View courses and timetables
+  - Book bus tickets
+
+- **Student**: 
   - View courses
   - Submit faculty feedback
   - Report lost/found items
   - Submit project ideas
   - Submit grade appeals
   - Attend quizzes and view own results
-  - View timetables
+  - View timetables (read-only)
+  - Book bus tickets
 
 ## 🏗️ Tech Stack
 
@@ -300,9 +308,9 @@ All components are customizable through Tailwind CSS classes.
 ### Quizzes
 - `GET /api/quizzes` - Get all quizzes (protected)
 - `GET /api/quizzes/:id` - Get single quiz (protected)
-- `POST /api/quizzes` - Create quiz (Admin only)
-- `PUT /api/quizzes/:id` - Update quiz (Admin only)
-- `DELETE /api/quizzes/:id` - Delete quiz (Admin only)
+- `POST /api/quizzes` - Create quiz (Admin & Professor only)
+- `PUT /api/quizzes/:id` - Update quiz (Admin & Professor only)
+- `DELETE /api/quizzes/:id` - Delete quiz (Admin & Professor only)
 - `POST /api/quizzes/:id/submit` - Submit quiz answers (protected)
 - `GET /api/quizzes/:id/results` - Get user's results (protected)
 - `GET /api/quizzes/results/all` - Get all results (Admin only)
@@ -330,6 +338,8 @@ All components are customizable through Tailwind CSS classes.
 - `POST /api/bus/bookings` - Create booking (protected)
 - `DELETE /api/bus/bookings/:id` - Cancel booking (protected)
 - `POST /api/bus/routes` - Create route (Admin only)
+- `PUT /api/bus/routes/:id` - Update route (Admin only)
+- `DELETE /api/bus/routes/:id` - Delete route (Admin only)
 
 ### Grade Appeals
 - `GET /api/grade-appeals` - Get all appeals (protected, filtered by role)
@@ -350,11 +360,9 @@ All components are customizable through Tailwind CSS classes.
 - Faculty Feedback Module (Submit & view feedback)
 - Projects Module (Submit & approve projects)
 - Grade Appeals Module (Submit & review appeals)
-
-🚧 **In Progress:**
-- Timetable Management Module
-- Quiz Management Module
-- Bus Reservation Module
+- Timetable Management Module (Admin can create/edit, Students view only)
+- Quiz Management Module (Admin & Professors can create, Students can attempt)
+- Bus Reservation Module (Admin can manage routes, All users can book)
 
 ### Adding New Modules
 

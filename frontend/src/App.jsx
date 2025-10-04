@@ -11,11 +11,9 @@ import LostFoundModule from './modules/lostFound/LostFoundModule';
 import FeedbackModule from './modules/feedback/FeedbackModule';
 import ProjectsModule from './modules/projects/ProjectsModule';
 import GradeAppealModule from './modules/gradeAppeal/GradeAppealModule';
-
-// Placeholder components for modules (will be created later)
-const TimetableModule = () => <div className="p-8">Timetable Module - Coming Soon</div>;
-const QuizModule = () => <div className="p-8">Quiz Module - Coming Soon</div>;
-const BusModule = () => <div className="p-8">Bus Reservation Module - Coming Soon</div>;
+import TimetableModule from './modules/timetable/TimetableModule';
+import QuizModule from './modules/quiz/QuizModule';
+import BusModule from './modules/bus/BusModule';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {

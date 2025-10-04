@@ -41,7 +41,7 @@ const DashboardPage = () => {
     {
       id: 'quiz',
       title: 'Quiz Management',
-      description: isAdmin()
+      description: (isAdmin() || user?.role === 'professor')
         ? 'Create quizzes and view results'
         : 'Attend quizzes and view your results',
       icon: <FaQuestionCircle size={40} />,
@@ -83,7 +83,9 @@ const DashboardPage = () => {
     {
       id: 'bus',
       title: 'Bus Reservation',
-      description: 'Reserve bus tickets and view bookings',
+      description: isAdmin() 
+        ? 'Manage routes and view all bookings' 
+        : 'Reserve bus tickets and view bookings',
       icon: <FaBus size={40} />,
       path: '/modules/bus',
       color: 'from-red-500 to-red-600',
