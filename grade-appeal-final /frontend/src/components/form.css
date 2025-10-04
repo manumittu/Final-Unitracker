@@ -1,0 +1,23 @@
+.container { max-width:1100px; margin:20px auto; padding:0 15px; font-family: Arial, sans-serif; }
+.topbar { background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.07); padding:10px 0; }
+.topbar .container { display:flex; justify-content:space-between; align-items:center; }
+.topbar .navlinks a { margin-left:12px; color:#333; text-decoration:none; }
+.hero { padding:40px 0; text-align:center; }
+.footer { padding:20px 0; text-align:center; color:#666; background:#fafafa; margin-top:40px; }
+
+.form-container { background:#fff; padding:20px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); margin:20px 0; }
+.appeal-form .form-group { margin-bottom:12px; }
+.appeal-form label { display:block; margin-bottom:6px; font-weight:600; }
+.appeal-form input, .appeal-form select, .appeal-form textarea { width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.95rem; }
+.radio-row label { margin-right:10px; }
+.submit-btn { background:linear-gradient(90deg,#2575fc,#6a11cb); color:#fff; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; }
+.table-container { margin-top:20px; overflow-x:auto; }
+table { width:100%; border-collapse:collapse; margin-top:12px; }
+table th, table td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
+table th { background:#f6f8ff; }
+.action-btn { padding:6px 10px; margin-right:6px; border:none; border-radius:6px; cursor:pointer; }
+.action-btn.edit { background:#4caf50; color:white; }
+.action-btn.delete { background:#f44336; color:white; }
+.search-row { display:flex; gap:8px; align-items:center; margin:12px 0; }
+.cta-button { background:linear-gradient(90deg,#2575fc,#6a11cb); color:white; padding:8px 12px; border:none; border-radius:6px; cursor:pointer; }
+.message { color:green; margin-top:8px; }

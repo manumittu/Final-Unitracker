@@ -1,0 +1,200 @@
+body, h1, h2, h3, p, a {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95rem;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  transition: background 0.4s ease;
+}
+.theme-toggle:hover {
+  background: linear-gradient(135deg, #5a0fc8, #1e63d1);
+}
+
+.landing-container.light {
+  background-color: #f8f9fb;
+  color: #1f1f1f;
+}
+.landing-container.light .hero {
+  background: linear-gradient(to right, #d0e8ff, #f1f9ff);
+}
+.landing-container.light .features {
+  background-color: #ffffff;
+}
+.landing-container.light .feature-card {
+  background-color: #f0f4fa;
+  color: #1c1c1c;
+}
+.landing-container.light .cta-section {
+  background: linear-gradient(to right, #d0e8ff, #f1f9ff);
+}
+.landing-container.light .footer {
+  background-color: #d1dbe6;
+  color: #333;
+}
+.landing-container.light .feature-card h3 {
+  color: #2b60d8;
+}
+.landing-container.light .feature-card svg {
+  color: #3c8efc;
+}
+
+body,
+.landing-container.dark {
+  background-color: #0f1117;
+  color: #e4e4e4;
+}
+.landing-container.dark .hero {
+  background: linear-gradient(to right, #1f1f1f, #2d2d2d);
+}
+.landing-container.dark .features {
+  background-color: #1b1b1f;
+}
+.landing-container.dark .feature-card {
+  background-color: #26262b;
+  color: #e0e0e0;
+}
+.landing-container.dark .cta-section {
+  background: linear-gradient(to right, #1f1f1f, #2d2d2d);
+}
+.landing-container.dark .footer {
+  background-color: #101010;
+  color: #888;
+}
+.landing-container.dark .feature-card h3 {
+  color: #82b1ff;
+}
+.landing-container.dark .feature-card svg {
+  color: #5c9eff;
+}
+
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+}
+.hero h1 {
+  font-size: 3.2rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+.hero h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  padding: 14px 30px;
+  text-decoration: none;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.features {
+  padding: 70px 20px;
+  text-align: center;
+}
+.features h2 {
+  font-size: 2.5rem;
+  margin-bottom: 50px;
+  font-weight: 600;
+}
+
+.scroll-container {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  margin: 2rem 0;
+}
+.scroll-content {
+  display: flex;
+  width: max-content;
+  animation: scrollLeft 25s linear infinite;
+}
+.scroll-container:hover .scroll-content {
+  animation-play-state: paused;
+}
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.feature-card {
+  flex: 0 0 auto;
+  width: 260px;
+  margin: 0 1rem;
+  padding: 1.8rem;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+.feature-card svg {
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+.feature-card:hover svg {
+  transform: scale(1.2);
+}
+.feature-card p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 70px 20px;
+}
+.cta-section h2 {
+  font-size: 2.2rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+.cta-section p {
+  font-size: 1.15rem;
+  margin-bottom: 25px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.footer {
+  text-align: center;
+  padding: 25px;
+  font-size: 0.9rem;
+}
