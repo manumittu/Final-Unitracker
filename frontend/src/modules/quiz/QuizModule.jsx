@@ -67,9 +67,23 @@ const QuizModule = () => {
   }, []);
 
   useEffect(() => {
-    if (!canCreateQuiz && quizzes.length > 0) {
-      fetchAllQuizResults();
-    }
+    const fetchResults = async () => {
+      if (!canCreateQuiz && quizzes.length > 0) {
+        try {
+          const quizResultsMap = {};
+          for (const quiz of quizzes) {
+            const response = await quizAPI.getResults(quiz._id);
+            if (response.data && response.data.length > 0) {
+              quizResultsMap[quiz._id] = response.data[0];
+            }
+          }
+          setQuizResults(quizResultsMap);
+        } catch (err) {
+          console.error('Failed to fetch quiz results:', err);
+        }
+      }
+    };
+    fetchResults();
   }, [quizzes, canCreateQuiz]);
 
   const fetchQuizzes = async () => {
@@ -82,21 +96,6 @@ const QuizModule = () => {
       console.error(err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchAllQuizResults = async () => {
-    try {
-      const quizResultsMap = {};
-      for (const quiz of quizzes) {
-        const response = await quizAPI.getResults(quiz._id);
-        if (response.data && response.data.length > 0) {
-          quizResultsMap[quiz._id] = response.data[0];
-        }
-      }
-      setQuizResults(quizResultsMap);
-    } catch (err) {
-      console.error('Failed to fetch quiz results:', err);
     }
   };
 
