@@ -49,6 +49,20 @@ const LostFoundModule = () => {
     downloadAsTextFile(content, filename);
   };
 
+  const handleDownloadSubmittedItem = (item) => {
+    let content = `Lost & Found Report\n\n`;
+    content += `Type: ${item.type.toUpperCase()}\n`;
+    content += `Item Name: ${item.itemName}\n`;
+    content += `Description: ${item.description}\n`;
+    content += `Location: ${item.location}\n`;
+    content += `Date: ${new Date(item.date).toLocaleDateString()}\n`;
+    content += `Contact Info: ${item.contactInfo}\n`;
+    content += `Posted By: ${item.postedBy?.name || 'Anonymous'}\n`;
+    
+    const filename = `lost_found_${item.type}_${item.itemName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
+
   useEffect(() => {
     fetchItems();
   }, []);
@@ -298,6 +312,17 @@ const LostFoundModule = () => {
                     </div>
                     <div className="mt-2 pt-2 border-t text-xs text-gray-500">
                       Posted by: {item.postedBy?.name || 'Anonymous'}
+                    </div>
+                    <div className="mt-3 pt-2 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadSubmittedItem(item)}
+                        className="w-full"
+                      >
+                        <FaDownload className="mr-2" />
+                        Download
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

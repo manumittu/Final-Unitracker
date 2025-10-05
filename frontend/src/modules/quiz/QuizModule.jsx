@@ -183,7 +183,13 @@ const QuizModule = () => {
       // Show the existing result
       const existingResult = quizResults[quiz._id];
       setAttemptingQuiz(quiz);
-      setUserAnswers(Object.fromEntries(existingResult.answers));
+      // Handle answers whether they're a Map, array, or object
+      const answersObj = existingResult.answers instanceof Map 
+        ? Object.fromEntries(existingResult.answers)
+        : (Array.isArray(existingResult.answers) 
+          ? Object.fromEntries(existingResult.answers.entries()) 
+          : existingResult.answers);
+      setUserAnswers(answersObj);
       setQuizResult({ 
         score: existingResult.score, 
         total: existingResult.total || quiz.questions.length 
@@ -225,7 +231,7 @@ const QuizModule = () => {
         ...quizResults,
         [attemptingQuiz._id]: {
           quiz: attemptingQuiz._id,
-          answers: new Map(Object.entries(userAnswers)),
+          answers: userAnswers,
           score: response.data.score,
           total: response.data.total,
         },
