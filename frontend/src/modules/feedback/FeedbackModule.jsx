@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaStar } from 'react-icons/fa';
+import { FaPlus, FaStar, FaDownload } from 'react-icons/fa';
 
 const FeedbackModule = () => {
   const { isAdmin } = useAuth();
@@ -20,6 +20,29 @@ const FeedbackModule = () => {
     comments: '',
   });
   const [error, setError] = useState('');
+
+  const downloadAsTextFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadFeedback = () => {
+    let content = `Faculty Feedback\n\n`;
+    content += `Faculty Name: ${formData.facultyName}\n`;
+    content += `Subject: ${formData.subject}\n`;
+    content += `Rating: ${formData.rating}/5\n`;
+    content += `Comments: ${formData.comments}\n`;
+    
+    const filename = `feedback_${formData.facultyName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
 
   useEffect(() => {
     if (isAdmin()) {
@@ -170,6 +193,16 @@ const FeedbackModule = () => {
                   />
                 </div>
                 <div className="flex gap-2">
+                  {formData.facultyName && formData.subject && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadFeedback}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download
+                    </Button>
+                  )}
                   <Button type="submit">Submit Feedback</Button>
                   <Button
                     type="button"

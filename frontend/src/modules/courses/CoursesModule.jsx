@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaDownload } from 'react-icons/fa';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const CoursesModule = () => {
@@ -24,6 +24,31 @@ const CoursesModule = () => {
     instructor: '',
   });
   const [error, setError] = useState('');
+
+  const downloadAsTextFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadCourse = () => {
+    let content = `Course Details\n\n`;
+    content += `Code: ${formData.code}\n`;
+    content += `Name: ${formData.name}\n`;
+    content += `Credits: ${formData.credits}\n`;
+    content += `Department: ${formData.department}\n`;
+    content += `Instructor: ${formData.instructor}\n`;
+    content += `Description: ${formData.description}\n`;
+    
+    const filename = `course_${formData.code.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
 
   useEffect(() => {
     fetchCourses();
@@ -336,6 +361,16 @@ const CoursesModule = () => {
                   />
                 </div>
                 <div className="flex gap-2">
+                  {formData.code && formData.name && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadCourse}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download
+                    </Button>
+                  )}
                   <Button type="submit">
                     {editingId ? 'Update Course' : 'Add Course'}
                   </Button>

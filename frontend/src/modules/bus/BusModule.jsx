@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaEdit, FaTrash, FaBus, FaTicketAlt } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaBus, FaTicketAlt, FaDownload } from 'react-icons/fa';
 
 const BusModule = () => {
   const { isAdmin } = useAuth();
@@ -31,6 +31,48 @@ const BusModule = () => {
     seatsBooked: 1,
   });
   const [error, setError] = useState('');
+
+  const downloadAsTextFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadRoute = () => {
+    let content = `Bus Route Details\n\n`;
+    content += `Route Name: ${routeFormData.routeName}\n`;
+    content += `From: ${routeFormData.from}\n`;
+    content += `To: ${routeFormData.to}\n`;
+    content += `Departure Time: ${routeFormData.departureTime}\n`;
+    content += `Available Seats: ${routeFormData.availableSeats}\n`;
+    content += `Fare: ${routeFormData.fare}\n`;
+    
+    const filename = `bus_route_${routeFormData.routeName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
+
+  const handleDownloadBooking = () => {
+    let content = `Bus Booking Details\n\n`;
+    content += `Route: ${selectedRoute?.routeName || bookingFormData.route}\n`;
+    content += `Date: ${bookingFormData.date}\n`;
+    content += `Seats Booked: ${bookingFormData.seatsBooked}\n`;
+    if (selectedRoute) {
+      content += `From: ${selectedRoute.from}\n`;
+      content += `To: ${selectedRoute.to}\n`;
+      content += `Departure Time: ${selectedRoute.departureTime}\n`;
+      content += `Fare per Seat: ${selectedRoute.fare}\n`;
+      content += `Total Fare: ${selectedRoute.fare * bookingFormData.seatsBooked}\n`;
+    }
+    
+    const filename = `bus_booking_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
 
   useEffect(() => {
     fetchData();
@@ -246,29 +288,43 @@ const BusModule = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowRouteForm(false);
-                    setEditingRouteId(null);
-                    setRouteFormData({
-                      routeName: '',
-                      from: '',
-                      to: '',
-                      departureTime: '',
-                      availableSeats: '',
-                      fare: '',
-                    });
-                    setError('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingRouteId ? 'Update Route' : 'Add Route'}
-                </Button>
+              <div className="flex justify-between space-x-3">
+                <div>
+                  {routeFormData.routeName && routeFormData.from && routeFormData.to && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadRoute}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download Route
+                    </Button>
+                  )}
+                </div>
+                <div className="flex space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowRouteForm(false);
+                      setEditingRouteId(null);
+                      setRouteFormData({
+                        routeName: '',
+                        from: '',
+                        to: '',
+                        departureTime: '',
+                        availableSeats: '',
+                        fare: '',
+                      });
+                      setError('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {editingRouteId ? 'Update Route' : 'Add Route'}
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>
@@ -347,26 +403,40 @@ const BusModule = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowBookingForm(false);
-                    setSelectedRoute(null);
-                    setBookingFormData({
-                      route: '',
-                      date: '',
-                      seatsBooked: 1,
-                    });
-                    setError('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  Confirm Booking
-                </Button>
+              <div className="flex justify-between space-x-3">
+                <div>
+                  {bookingFormData.date && bookingFormData.seatsBooked && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadBooking}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download Booking
+                    </Button>
+                  )}
+                </div>
+                <div className="flex space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowBookingForm(false);
+                      setSelectedRoute(null);
+                      setBookingFormData({
+                        route: '',
+                        date: '',
+                        seatsBooked: 1,
+                      });
+                      setError('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    Confirm Booking
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>

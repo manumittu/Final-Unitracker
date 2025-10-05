@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaEdit, FaTrash, FaPlay, FaChartBar } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaPlay, FaChartBar, FaDownload } from 'react-icons/fa';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const QuizModule = () => {
@@ -29,12 +29,48 @@ const QuizModule = () => {
   const [userAnswers, setUserAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
   const [error, setError] = useState('');
+  const [quizResults, setQuizResults] = useState({});
 
   const canCreateQuiz = isAdmin() || user?.role === 'professor';
+
+  const downloadAsTextFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadQuiz = () => {
+    let content = `Quiz Name: ${formData.name}\n\n`;
+    content += `Total Questions: ${formData.questions.length}\n\n`;
+    
+    formData.questions.forEach((q, index) => {
+      content += `Question ${index + 1}: ${q.question}\n`;
+      q.options.forEach((opt, i) => {
+        const marker = i === q.correct ? '✓' : ' ';
+        content += `  [${marker}] ${opt}\n`;
+      });
+      content += '\n';
+    });
+    
+    const filename = `quiz_${formData.name.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
 
   useEffect(() => {
     fetchQuizzes();
   }, []);
+
+  useEffect(() => {
+    if (!canCreateQuiz && quizzes.length > 0) {
+      fetchAllQuizResults();
+    }
+  }, [quizzes, canCreateQuiz]);
 
   const fetchQuizzes = async () => {
     try {
@@ -46,6 +82,21 @@ const QuizModule = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllQuizResults = async () => {
+    try {
+      const quizResultsMap = {};
+      for (const quiz of quizzes) {
+        const response = await quizAPI.getResults(quiz._id);
+        if (response.data && response.data.length > 0) {
+          quizResultsMap[quiz._id] = response.data[0];
+        }
+      }
+      setQuizResults(quizResultsMap);
+    } catch (err) {
+      console.error('Failed to fetch quiz results:', err);
     }
   };
 
@@ -127,7 +178,20 @@ const QuizModule = () => {
     }
   };
 
-  const startQuiz = (quiz) => {
+  const startQuiz = async (quiz) => {
+    // Check if quiz was already attempted
+    if (quizResults[quiz._id]) {
+      // Show the existing result
+      const existingResult = quizResults[quiz._id];
+      setAttemptingQuiz(quiz);
+      setUserAnswers(Object.fromEntries(existingResult.answers));
+      setQuizResult({ 
+        score: existingResult.score, 
+        total: existingResult.total || quiz.questions.length 
+      });
+      return;
+    }
+
     setAttemptingQuiz(quiz);
     setCurrentQuestionIndex(0);
     setUserAnswers({});
@@ -157,8 +221,18 @@ const QuizModule = () => {
     try {
       const response = await quizAPI.submitAnswer(attemptingQuiz._id, { answers: userAnswers });
       setQuizResult(response.data);
+      // Update quiz results to prevent re-attempting
+      setQuizResults({
+        ...quizResults,
+        [attemptingQuiz._id]: {
+          quiz: attemptingQuiz._id,
+          answers: new Map(Object.entries(userAnswers)),
+          score: response.data.score,
+          total: response.data.total,
+        },
+      });
     } catch (err) {
-      setError('Failed to submit quiz');
+      setError(err.response?.data?.error || 'Failed to submit quiz');
     }
   };
 
@@ -453,23 +527,37 @@ const QuizModule = () => {
                 </div>
               )}
 
-              <div className="flex justify-end space-x-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingId(null);
-                    setFormData({ name: '', questions: [] });
-                    setCurrentQuestion({ question: '', options: ['', '', '', ''], correct: 0 });
-                    setError('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingId ? 'Update Quiz' : 'Create Quiz'}
-                </Button>
+              <div className="flex justify-between space-x-3">
+                <div>
+                  {formData.questions.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadQuiz}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download Quiz
+                    </Button>
+                  )}
+                </div>
+                <div className="flex space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditingId(null);
+                      setFormData({ name: '', questions: [] });
+                      setCurrentQuestion({ question: '', options: ['', '', '', ''], correct: 0 });
+                      setError('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {editingId ? 'Update Quiz' : 'Create Quiz'}
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>
@@ -530,8 +618,17 @@ const QuizModule = () => {
                 <CardContent>
                   <div className="flex flex-col space-y-2">
                     <Button onClick={() => startQuiz(quiz)} className="w-full">
-                      <FaPlay className="mr-2" />
-                      Attempt Quiz
+                      {quizResults[quiz._id] ? (
+                        <>
+                          <FaChartBar className="mr-2" />
+                          View Results
+                        </>
+                      ) : (
+                        <>
+                          <FaPlay className="mr-2" />
+                          Attempt Quiz
+                        </>
+                      )}
                     </Button>
                     {canCreateQuiz && (
                       <>

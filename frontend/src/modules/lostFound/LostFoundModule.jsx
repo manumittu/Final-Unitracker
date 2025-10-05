@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaMapMarkerAlt, FaCalendar, FaPhone } from 'react-icons/fa';
+import { FaPlus, FaMapMarkerAlt, FaCalendar, FaPhone, FaDownload } from 'react-icons/fa';
 
 const LostFoundModule = () => {
   const { user } = useAuth();
@@ -23,6 +23,31 @@ const LostFoundModule = () => {
     contactInfo: '',
   });
   const [error, setError] = useState('');
+
+  const downloadAsTextFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadItem = () => {
+    let content = `Lost & Found Report\n\n`;
+    content += `Type: ${formData.type.toUpperCase()}\n`;
+    content += `Item Name: ${formData.itemName}\n`;
+    content += `Description: ${formData.description}\n`;
+    content += `Location: ${formData.location}\n`;
+    content += `Date: ${formData.date}\n`;
+    content += `Contact Info: ${formData.contactInfo}\n`;
+    
+    const filename = `lost_found_${formData.type}_${formData.itemName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
 
   useEffect(() => {
     fetchItems();
@@ -178,6 +203,16 @@ const LostFoundModule = () => {
                   />
                 </div>
                 <div className="flex gap-2">
+                  {formData.itemName && formData.description && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadItem}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download
+                    </Button>
+                  )}
                   <Button type="submit">Submit</Button>
                   <Button
                     type="button"
