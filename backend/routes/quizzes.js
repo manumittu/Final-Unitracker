@@ -79,6 +79,16 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
       return res.status(404).json({ msg: 'Quiz not found' });
     }
 
+    // Check if user has already attempted this quiz
+    const existingResult = await QuizResult.findOne({
+      quiz: quiz._id,
+      user: req.user.id,
+    });
+
+    if (existingResult) {
+      return res.status(400).json({ error: 'You have already attempted this quiz' });
+    }
+
     const { answers } = req.body;
     let score = 0;
 
@@ -89,16 +99,19 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
       }
     });
 
+    const total = quiz.questions.length;
+
     // Save result
     const result = new QuizResult({
       quiz: quiz._id,
       user: req.user.id,
       answers,
       score,
+      total,
     });
 
     await result.save();
-    res.json({ score, total: quiz.questions.length });
+    res.json({ score, total });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

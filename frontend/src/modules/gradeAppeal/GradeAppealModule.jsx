@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaDownload } from 'react-icons/fa';
 
 const GradeAppealModule = () => {
   const { isAdmin } = useAuth();
@@ -20,6 +20,29 @@ const GradeAppealModule = () => {
     reason: '',
   });
   const [error, setError] = useState('');
+
+  const downloadAsTextFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadAppeal = () => {
+    let content = `Grade Appeal\n\n`;
+    content += `Course Name: ${formData.courseName}\n`;
+    content += `Current Grade: ${formData.currentGrade}\n`;
+    content += `Expected Grade: ${formData.expectedGrade}\n`;
+    content += `Reason: ${formData.reason}\n`;
+    
+    const filename = `grade_appeal_${formData.courseName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
 
   useEffect(() => {
     fetchAppeals();
@@ -179,6 +202,16 @@ const GradeAppealModule = () => {
                   />
                 </div>
                 <div className="flex gap-2">
+                  {formData.courseName && formData.reason && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadAppeal}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download
+                    </Button>
+                  )}
                   <Button type="submit">Submit Appeal</Button>
                   <Button
                     type="button"

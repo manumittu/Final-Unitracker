@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaCheck, FaTimes, FaClock } from 'react-icons/fa';
+import { FaPlus, FaCheck, FaTimes, FaClock, FaDownload } from 'react-icons/fa';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const ProjectsModule = () => {
@@ -21,6 +21,28 @@ const ProjectsModule = () => {
     technologies: '',
   });
   const [error, setError] = useState('');
+
+  const downloadAsTextFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadProject = () => {
+    let content = `Project Title: ${formData.title}\n\n`;
+    content += `Description:\n${formData.description}\n\n`;
+    content += `Team Members: ${formData.teamMembers}\n\n`;
+    content += `Technologies: ${formData.technologies}\n`;
+    
+    const filename = `project_${formData.title.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
 
   useEffect(() => {
     fetchProjects();
@@ -270,6 +292,16 @@ const ProjectsModule = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  {formData.title && formData.description && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadProject}
+                    >
+                      <FaDownload className="mr-2" />
+                      Download
+                    </Button>
+                  )}
                   <Button type="submit">Submit Project</Button>
                   <Button
                     type="button"
