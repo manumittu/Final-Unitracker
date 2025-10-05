@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { FaPlus, FaEdit, FaTrash, FaPlay, FaChartBar } from 'react-icons/fa';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const QuizModule = () => {
   const { isAdmin, user } = useAuth();
@@ -236,27 +237,115 @@ const QuizModule = () => {
 
   // Quiz result view
   if (quizResult) {
+    const correctCount = quizResult.score;
+    const incorrectCount = quizResult.total - quizResult.score;
+    const percentage = Math.round((quizResult.score / quizResult.total) * 100);
+
+    const pieData = [
+      { name: 'Correct', value: correctCount },
+      { name: 'Incorrect', value: incorrectCount },
+    ];
+
+    const COLORS = ['#4caf50', '#f44336'];
+
+    // Create bar data for question-wise performance
+    const barData = attemptingQuiz?.questions.map((q, i) => ({
+      name: `Q${i + 1}`,
+      status: userAnswers[i] === q.correct ? 1 : 0,
+    })) || [];
+
     return (
       <ModuleLayout title="Quiz Result">
-        <Card className="max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="text-center text-3xl">Quiz Completed!</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="text-6xl font-bold text-blue-600 my-8">
-              {quizResult.score} / {quizResult.total}
-            </div>
-            <div className="text-xl text-gray-600 mb-8">
-              Score: {Math.round((quizResult.score / quizResult.total) * 100)}%
-            </div>
+        <div className="max-w-5xl mx-auto space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-3xl">Quiz Completed!</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="text-6xl font-bold text-blue-600 my-8">
+                {quizResult.score} / {quizResult.total}
+              </div>
+              <div className="text-xl text-gray-600 mb-8">
+                Score: {percentage}%
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Visualization Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pie Chart - Overall Performance */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Overall Performance</CardTitle>
+                <CardDescription>Distribution of correct and incorrect answers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Bar Chart - Question-wise Performance */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Question-wise Performance</CardTitle>
+                <CardDescription>Your answer status for each question</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={barData}>
+                    <XAxis dataKey="name" />
+                    <YAxis domain={[0, 1]} ticks={[0, 1]} />
+                    <Tooltip 
+                      formatter={(value) => value === 1 ? 'Correct' : 'Incorrect'}
+                    />
+                    <Legend 
+                      payload={[
+                        { value: 'Correct (1)', type: 'square', color: '#4caf50' },
+                        { value: 'Incorrect (0)', type: 'square', color: '#f44336' }
+                      ]}
+                    />
+                    <Bar 
+                      dataKey="status" 
+                      fill="#8884d8"
+                      shape={(props) => {
+                        const { x, y, width, height, status } = props;
+                        const fill = status === 1 ? '#4caf50' : '#f44336';
+                        return <rect x={x} y={y} width={width} height={height} fill={fill} />;
+                      }}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
             <Button onClick={() => {
               setAttemptingQuiz(null);
               setQuizResult(null);
             }}>
               Back to Quizzes
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </ModuleLayout>
     );
   }

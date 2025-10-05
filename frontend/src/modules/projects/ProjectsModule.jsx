@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { FaPlus, FaCheck, FaTimes, FaClock } from 'react-icons/fa';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const ProjectsModule = () => {
   const { isAdmin } = useAuth();
@@ -133,6 +134,77 @@ const ProjectsModule = () => {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             {error}
           </div>
+        )}
+
+        {/* Project Status Visualization */}
+        {projects.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Statistics Cards */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Projects</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-600">{projects.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Approved</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600">
+                  {projects.filter(p => p.status === 'approved').length}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-yellow-600">
+                  {projects.filter(p => p.status === 'pending').length}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Pie Chart for Project Status Distribution */}
+        {projects.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Project Status Distribution</CardTitle>
+              <CardDescription>Overview of all project submissions by status</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Approved', value: projects.filter(p => p.status === 'approved').length },
+                      { name: 'Pending', value: projects.filter(p => p.status === 'pending').length },
+                      { name: 'Rejected', value: projects.filter(p => p.status === 'rejected').length },
+                    ].filter(item => item.value > 0)}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent, value }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                    outerRadius={120}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    <Cell fill="#4caf50" />
+                    <Cell fill="#ffc658" />
+                    <Cell fill="#f44336" />
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         )}
 
         {/* Submit Form */}

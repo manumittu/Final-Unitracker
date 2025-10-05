@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const CoursesModule = () => {
   const { isAdmin } = useAuth();
@@ -140,6 +141,119 @@ const CoursesModule = () => {
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             {error}
+          </div>
+        )}
+
+        {/* Course Statistics Visualization */}
+        {courses.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Statistics Cards */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Courses</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-600">{courses.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Credits</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600">
+                  {courses.reduce((sum, course) => sum + parseInt(course.credits || 0), 0)}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Departments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-600">
+                  {new Set(courses.map(c => c.department)).size}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Avg Credits</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-orange-600">
+                  {(courses.reduce((sum, course) => sum + parseInt(course.credits || 0), 0) / courses.length).toFixed(1)}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Visualization Charts */}
+        {courses.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pie Chart - Credits by Department */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Credits Distribution by Department</CardTitle>
+                <CardDescription>Total credits offered per department</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={Object.entries(
+                        courses.reduce((acc, course) => {
+                          const dept = course.department;
+                          acc[dept] = (acc[dept] || 0) + parseInt(course.credits || 0);
+                          return acc;
+                        }, {})
+                      ).map(([name, value]) => ({ name, value }))}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent, value }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d0ed57', '#83a6ed'].map((color, index) => (
+                        <Cell key={`cell-${index}`} fill={color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Bar Chart - Courses per Department */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Courses per Department</CardTitle>
+                <CardDescription>Number of courses offered by each department</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={Object.entries(
+                      courses.reduce((acc, course) => {
+                        const dept = course.department;
+                        acc[dept] = (acc[dept] || 0) + 1;
+                        return acc;
+                      }, {})
+                    ).map(([name, value]) => ({ name, value }))}
+                  >
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="value" fill="#8884d8" name="Number of Courses" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </div>
         )}
 
