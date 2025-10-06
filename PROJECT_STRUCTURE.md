@@ -139,6 +139,9 @@ Final-Unitracker/
 - POST `/signup` - Register user
 - POST `/login` - Login user
 - GET `/me` - Get current user
+- GET `/access-requests` - Get all access requests (Admin)
+- PUT `/access-requests/:userId` - Approve/reject access request (Admin)
+- DELETE `/users/:userId` - Delete user (Admin)
 
 ### Courses (`/api/courses`)
 - GET `/` - List all courses
