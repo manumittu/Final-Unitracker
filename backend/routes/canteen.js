@@ -8,7 +8,8 @@ const router = express.Router();
 // Menu routes
 router.get('/menu', authenticateToken, async (req, res) => {
   try {
-    const menu = await Menu.find().sort({ itemName: 1 });
+    // Sort by category first, then by itemName
+    const menu = await Menu.find().sort({ category: 1, itemName: 1 });
     res.json(menu);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -15,9 +15,12 @@ const TimetableModule = () => {
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({});
   const [error, setError] = useState('');
+  const [customizingTimeSlots, setCustomizingTimeSlots] = useState(false);
+  const [timeSlots, setTimeSlots] = useState(['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-1:00', '2:00-3:00', '3:00-4:00']);
+  const [newTimeSlot, setNewTimeSlot] = useState('');
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  const periods = ['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-1:00', '2:00-3:00', '3:00-4:00'];
+  const periods = timeSlots;
 
   useEffect(() => {
     fetchTimetable();
@@ -30,6 +33,10 @@ const TimetableModule = () => {
       setTimetable(response.data);
       if (response.data) {
         setEditData(response.data);
+        // Load custom time slots if available
+        if (response.data.timeSlots && response.data.timeSlots.length > 0) {
+          setTimeSlots(response.data.timeSlots);
+        }
       } else {
         // Initialize empty timetable
         const emptySchedule = {};
@@ -67,9 +74,14 @@ const TimetableModule = () => {
 
   const handleSave = async () => {
     try {
-      await timetableAPI.save(editData);
-      setTimetable(editData);
+      const dataToSave = {
+        ...editData,
+        timeSlots: timeSlots // Save custom time slots
+      };
+      await timetableAPI.save(dataToSave);
+      setTimetable(dataToSave);
       setEditMode(false);
+      setCustomizingTimeSlots(false);
       setError('');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save timetable');
@@ -93,6 +105,40 @@ const TimetableModule = () => {
       } catch (err) {
         setError('Failed to delete timetable');
       }
+    }
+  };
+
+  const addTimeSlot = () => {
+    if (newTimeSlot && !timeSlots.includes(newTimeSlot)) {
+      const newSlots = [...timeSlots, newTimeSlot];
+      setTimeSlots(newSlots);
+      
+      // Update schedule with new time slot for all days
+      const updatedSchedule = { ...editData.schedule };
+      days.forEach(day => {
+        if (!updatedSchedule[day]) updatedSchedule[day] = {};
+        updatedSchedule[day][newTimeSlot] = { subject: '', teacher: '', room: '' };
+      });
+      setEditData({ ...editData, schedule: updatedSchedule });
+      setNewTimeSlot('');
+    }
+  };
+
+  const removeTimeSlot = (slot) => {
+    if (timeSlots.length > 1) {
+      const newSlots = timeSlots.filter(s => s !== slot);
+      setTimeSlots(newSlots);
+      
+      // Remove time slot from schedule
+      const updatedSchedule = { ...editData.schedule };
+      days.forEach(day => {
+        if (updatedSchedule[day]) {
+          delete updatedSchedule[day][slot];
+        }
+      });
+      setEditData({ ...editData, schedule: updatedSchedule });
+    } else {
+      alert('You must have at least one time slot');
     }
   };
 
@@ -139,14 +185,21 @@ const TimetableModule = () => {
                 </>
               ) : (
                 <>
+                  <Button onClick={() => setCustomizingTimeSlots(!customizingTimeSlots)}>
+                    {customizingTimeSlots ? 'Done with Time Slots' : 'Customize Time Slots'}
+                  </Button>
                   <Button onClick={handleSave}>
                     <FaSave className="mr-2" />
                     Save
                   </Button>
                   <Button variant="outline" onClick={() => {
                     setEditMode(false);
+                    setCustomizingTimeSlots(false);
                     if (timetable) {
                       setEditData(timetable);
+                      if (timetable.timeSlots && timetable.timeSlots.length > 0) {
+                        setTimeSlots(timetable.timeSlots);
+                      }
                     }
                   }}>
                     Cancel
@@ -170,8 +223,49 @@ const TimetableModule = () => {
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardContent className="p-6">
+          <>
+            {customizingTimeSlots && isAdmin() && editMode && (
+              <Card className="mb-4">
+                <CardHeader>
+                  <CardTitle>Customize Time Slots</CardTitle>
+                  <CardDescription>Add or remove time periods for your timetable</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g., 9:00-10:00 or Morning Session"
+                        value={newTimeSlot}
+                        onChange={(e) => setNewTimeSlot(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && addTimeSlot()}
+                      />
+                      <Button onClick={addTimeSlot}>
+                        <FaPlus className="mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Current Time Slots:</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {timeSlots.map((slot, index) => (
+                          <div key={index} className="flex items-center bg-blue-100 px-3 py-1 rounded">
+                            <span className="mr-2">{slot}</span>
+                            <button
+                              onClick={() => removeTimeSlot(slot)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            <Card>
+              <CardContent className="p-6">
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
@@ -244,6 +338,7 @@ const TimetableModule = () => {
               </div>
             </CardContent>
           </Card>
+          </>
         )}
       </div>
     </ModuleLayout>

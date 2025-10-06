@@ -142,4 +142,41 @@ router.get('/results/all', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
+// Get leaderboard for a specific quiz (admin and professors only)
+router.get('/:id/leaderboard', authenticateToken, isProfessor, async (req, res) => {
+  try {
+    const results = await QuizResult.find({ quiz: req.params.id })
+      .populate('user', 'name email')
+      .sort({ score: -1, createdAt: 1 });
+    
+    // Format leaderboard with rankings
+    const leaderboard = results.map((result, index) => ({
+      rank: index + 1,
+      name: result.user.name,
+      email: result.user.email,
+      score: result.score,
+      total: result.total,
+      percentage: Math.round((result.score / result.total) * 100),
+      attemptedAt: result.createdAt,
+    }));
+    
+    res.json(leaderboard);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Reset quiz - delete all results for a quiz (admin only)
+router.delete('/:id/reset', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const result = await QuizResult.deleteMany({ quiz: req.params.id });
+    res.json({ 
+      message: 'Quiz reset successfully',
+      deletedCount: result.deletedCount 
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 export default router;
