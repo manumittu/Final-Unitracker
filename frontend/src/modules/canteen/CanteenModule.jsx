@@ -6,7 +6,8 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaEdit, FaTrash, FaShoppingCart } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaShoppingCart, FaDownload, FaChartPie } from 'react-icons/fa';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const CanteenModule = () => {
   const { user, isAdmin } = useAuth();
@@ -18,6 +19,7 @@ const CanteenModule = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showVisualizations, setShowVisualizations] = useState(false);
 
   const [menuFormData, setMenuFormData] = useState({
     itemName: '',
@@ -165,6 +167,112 @@ const CanteenModule = () => {
     });
     setShowBookingForm(true);
   };
+
+  // Download order details as text file
+  const downloadOrderDetails = () => {
+    let content = '';
+    
+    if (isAdmin()) {
+      content = 'All Canteen Orders Report\n';
+      content += '='.repeat(50) + '\n\n';
+    } else {
+      content = 'My Canteen Orders\n';
+      content += '='.repeat(50) + '\n\n';
+    }
+    
+    content += `Generated on: ${new Date().toLocaleString()}\n`;
+    content += `Total Orders: ${bookings.length}\n\n`;
+    
+    bookings.forEach((booking, index) => {
+      content += `Order ${index + 1}:\n`;
+      content += `-`.repeat(30) + '\n';
+      content += `Food Item: ${booking.foodItem}\n`;
+      content += `Quantity: ${booking.quantity}\n`;
+      content += `Canteen Location: ${booking.canteenLocation || 'Main Canteen'}\n`;
+      content += `Date: ${new Date(booking.date).toLocaleDateString()}\n`;
+      content += `Time Slot: ${booking.timeSlot}\n`;
+      
+      if (isAdmin() && booking.userId) {
+        content += `Ordered By: ${booking.userId.name || booking.name}\n`;
+        content += `Email: ${booking.userId.email}\n`;
+      } else {
+        content += `Name: ${booking.name}\n`;
+      }
+      
+      content += `Payment Mode: ${booking.paymentMode}\n`;
+      
+      if (booking.specialInstructions) {
+        content += `Special Instructions: ${booking.specialInstructions}\n`;
+      }
+      
+      content += '\n';
+    });
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `canteen_orders_${Date.now()}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Prepare visualization data
+  const getVisualizationData = () => {
+    // Orders by canteen location
+    const locationCounts = {};
+    bookings.forEach(booking => {
+      const location = booking.canteenLocation || 'Main Canteen';
+      locationCounts[location] = (locationCounts[location] || 0) + 1;
+    });
+    
+    const locationData = Object.keys(locationCounts).map(location => ({
+      name: location,
+      value: locationCounts[location]
+    }));
+
+    // Orders by food item
+    const foodCounts = {};
+    bookings.forEach(booking => {
+      foodCounts[booking.foodItem] = (foodCounts[booking.foodItem] || 0) + booking.quantity;
+    });
+    
+    const foodData = Object.keys(foodCounts)
+      .sort((a, b) => foodCounts[b] - foodCounts[a])
+      .slice(0, 10) // Top 10 items
+      .map(food => ({
+        name: food,
+        quantity: foodCounts[food]
+      }));
+
+    // Orders by payment mode
+    const paymentCounts = {};
+    bookings.forEach(booking => {
+      paymentCounts[booking.paymentMode] = (paymentCounts[booking.paymentMode] || 0) + 1;
+    });
+    
+    const paymentData = Object.keys(paymentCounts).map(mode => ({
+      name: mode,
+      value: paymentCounts[mode]
+    }));
+
+    // Orders by time slot
+    const timeSlotCounts = {};
+    bookings.forEach(booking => {
+      timeSlotCounts[booking.timeSlot] = (timeSlotCounts[booking.timeSlot] || 0) + 1;
+    });
+    
+    const timeSlotData = Object.keys(timeSlotCounts).map(slot => ({
+      name: slot,
+      value: timeSlotCounts[slot]
+    }));
+
+    return { locationData, foodData, paymentData, timeSlotData };
+  };
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#D88484'];
 
   if (loading) {
     return (
@@ -464,6 +572,172 @@ const CanteenModule = () => {
     );
   }
 
+  // Visualizations view
+  if (showVisualizations) {
+    const vizData = getVisualizationData();
+    
+    return (
+      <ModuleLayout title="Order Analytics">
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Order Statistics & Visualizations</h2>
+            <Button
+              variant="outline"
+              onClick={() => setShowVisualizations(false)}
+            >
+              Back to Orders
+            </Button>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Total Orders</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-blue-600">{bookings.length}</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Total Items Ordered</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-green-600">
+                  {bookings.reduce((sum, b) => sum + b.quantity, 0)}
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Active Canteens</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-purple-600">
+                  {new Set(bookings.map(b => b.canteenLocation || 'Main Canteen')).size}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Charts */}
+          {bookings.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Orders by Canteen Location */}
+              {vizData.locationData.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Orders by Canteen Location</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={vizData.locationData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, value }) => `${name}: ${value}`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {vizData.locationData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Top Food Items */}
+              {vizData.foodData.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top 10 Food Items</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={vizData.foodData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="quantity" fill="#8884d8" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Orders by Payment Mode */}
+              {vizData.paymentData.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Orders by Payment Mode</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={vizData.paymentData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, value }) => `${name}: ${value}`}
+                          outerRadius={80}
+                          fill="#82ca9d"
+                          dataKey="value"
+                        >
+                          {vizData.paymentData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Orders by Time Slot */}
+              {vizData.timeSlotData.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Orders by Time Slot</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={vizData.timeSlotData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="value" fill="#82ca9d" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="py-8 text-center text-gray-500">
+                No orders available to visualize.
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </ModuleLayout>
+    );
+  }
+
   // Main view
   return (
     <ModuleLayout title="Canteen Management">
@@ -584,9 +858,29 @@ const CanteenModule = () => {
 
         {/* Bookings */}
         <div>
-          <h3 className="text-xl font-semibold mb-4">
-            {isAdmin() ? 'All Orders' : 'My Orders'}
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">
+              {isAdmin() ? 'All Orders' : 'My Orders'}
+            </h3>
+            <div className="flex gap-2">
+              {bookings.length > 0 && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowVisualizations(true)}
+                  >
+                    <FaChartPie className="mr-2" /> View Analytics
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={downloadOrderDetails}
+                  >
+                    <FaDownload className="mr-2" /> Download Orders
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
           {bookings.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-gray-500">
