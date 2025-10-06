@@ -389,6 +389,17 @@ The project uses Tailwind CSS with a custom ShadCN theme. Modify `frontend/tailw
 
 ## 📦 Publishing
 
+### Important: Two-Part Deployment
+
+UniTracker consists of two parts that must be deployed separately:
+
+1. **Frontend** (Static files) → GitHub Pages
+2. **Backend** (Node.js API) → Render/Railway/Heroku + MongoDB Atlas
+
+**⚠️ Common Issue**: If login doesn't work after publishing, it's because the backend isn't deployed yet!
+
+**Quick Fix**: See [QUICK_FIX_LOGIN.md](QUICK_FIX_LOGIN.md) for step-by-step instructions.
+
 ### GitHub Pages Deployment
 
 This project is configured to be published using GitHub Pages:
