@@ -387,6 +387,36 @@ All components are customizable through Tailwind CSS classes.
 
 The project uses Tailwind CSS with a custom ShadCN theme. Modify `frontend/tailwind.config.js` to customize colors, spacing, etc.
 
+## 📦 Publishing
+
+### GitHub Pages Deployment
+
+This project is configured to be published using GitHub Pages:
+
+1. **Build the project**:
+   ```bash
+   npm run build
+   ```
+   This will create a production build in the `docs` folder at the root of the repository.
+
+2. **Enable GitHub Pages**:
+   - Go to your repository on GitHub
+   - Navigate to Settings → Pages
+   - Under "Source", select "Deploy from a branch"
+   - Select the `main` branch and `/docs` folder
+   - Click Save
+
+3. **Access your deployed site**:
+   - Your site will be available at `https://<username>.github.io/<repository-name>/`
+   - GitHub will provide the URL in the Pages settings
+
+### Important Notes
+
+- The `docs` folder contains the static frontend build only
+- For full functionality, you'll need to deploy the backend separately (e.g., Heroku, Railway, Render)
+- Update the API endpoint in your frontend configuration to point to your deployed backend
+- The `.nojekyll` file in the docs folder ensures GitHub Pages serves the app correctly
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
