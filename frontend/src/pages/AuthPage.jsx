@@ -72,6 +72,12 @@ const AuthPage = () => {
           email: formData.email,
           password: formData.password,
         });
+        
+        if (result.success) {
+          navigate('/dashboard');
+        } else {
+          setErrors({ submit: result.error });
+        }
       } else {
         result = await signup({
           name: formData.name,
@@ -81,18 +87,38 @@ const AuthPage = () => {
         });
         
         if (result.success) {
-          // Auto-login after signup
-          result = await login({
-            email: formData.email,
-            password: formData.password,
-          });
+          // Check if user needs approval (pending status)
+          if (result.status === 'pending') {
+            setErrors({ 
+              submit: result.message || 'Access request submitted successfully. Please wait for admin approval to login.' 
+            });
+            // Show success style for pending status
+            setErrors({ 
+              success: result.message || 'Access request submitted successfully. Please wait for admin approval to login.' 
+            });
+            // Clear form
+            setFormData({
+              name: '',
+              email: '',
+              password: '',
+              confirmPassword: '',
+            });
+          } else {
+            // Admin signup - auto-login
+            result = await login({
+              email: formData.email,
+              password: formData.password,
+            });
+            
+            if (result.success) {
+              navigate('/dashboard');
+            } else {
+              setErrors({ submit: result.error });
+            }
+          }
+        } else {
+          setErrors({ submit: result.error });
         }
-      }
-
-      if (result.success) {
-        navigate('/dashboard');
-      } else {
-        setErrors({ submit: result.error });
       }
     } catch (err) {
       setErrors({ submit: err.message || 'Something went wrong' });
@@ -202,6 +228,12 @@ const AuthPage = () => {
             {errors.submit && (
               <p className="text-sm text-red-500 text-center">
                 {errors.submit}
+              </p>
+            )}
+            
+            {errors.success && (
+              <p className="text-sm text-green-600 text-center font-medium">
+                {errors.success}
               </p>
             )}
 

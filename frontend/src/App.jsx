@@ -15,6 +15,7 @@ import TimetableModule from './modules/timetable/TimetableModule';
 import QuizModule from './modules/quiz/QuizModule';
 import BusModule from './modules/bus/BusModule';
 import CanteenModule from './modules/canteen/CanteenModule';
+import AccessRequestsModule from './modules/accessRequests/AccessRequestsModule';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -145,6 +146,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CanteenModule />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/modules/access-requests"
+        element={
+          <ProtectedRoute>
+            <AccessRequestsModule />
           </ProtectedRoute>
         }
       />

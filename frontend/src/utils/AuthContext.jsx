@@ -52,8 +52,12 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (data) => {
     try {
-      await authAPI.signup(data);
-      return { success: true };
+      const response = await authAPI.signup(data);
+      return { 
+        success: true,
+        message: response.data.msg,
+        status: response.data.status
+      };
     } catch (error) {
       return {
         success: false,
