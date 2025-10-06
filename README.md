@@ -13,10 +13,11 @@ A comprehensive monorepo integrating 10 different college management modules int
 3. **Timetable Management** - Create and view class schedules (Admin can create/edit, Students view only)
 4. **Quiz Management** - Create quizzes and track results (Admin & Professors can create, Students can attempt)
 5. **Faculty Feedback** - Submit feedback (Students), review all feedback (Admin)
-6. **Lost & Found** - Report and track lost/found items (All users)
+6. **Lost & Found** - Report and track lost/found items with claim functionality (All users)
 7. **Project Idea Submission** - Submit project ideas (Students), approve/reject (Admin)
 8. **Bus Reservation** - Book transportation (Admin can manage routes, All users can book)
 9. **Grade Appeals** - Submit appeals (Students), review & respond (Admin)
+10. **Canteen Management** - Order food (Students/Professors), manage menu (Admin)
 
 ### Role-Based Access Control
 
@@ -28,21 +29,31 @@ A comprehensive monorepo integrating 10 different college management modules int
   - Create and manage timetables
   - Create quizzes and view all results
   - Manage bus routes and view all bookings
+  - Manage canteen menu items and view all orders
 
 - **Professor**: 
   - Create, edit, and delete quizzes
   - View all quiz results
   - View courses and timetables
   - Book bus tickets
+  - Order food from canteen
 
 - **Student**: 
   - View courses
   - Submit faculty feedback
-  - Report lost/found items
+  - Report lost/found items and claim items
   - Submit project ideas
   - Submit grade appeals
   - Attend quizzes and view own results
   - View timetables (read-only)
+  - Book bus tickets
+  - Order food from canteen
+
+- **Canteen Staff**:
+  - Order food from canteen
+  - View menu items
+
+- **Bus Staff**:
   - Book bus tickets
 
 ## 🏗️ Tech Stack
