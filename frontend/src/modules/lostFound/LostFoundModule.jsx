@@ -103,8 +103,32 @@ const LostFoundModule = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this item?')) {
+      try {
+        await lostFoundAPI.delete(id);
+        fetchItems();
+      } catch (err) {
+        setError('Failed to delete item');
+      }
+    }
+  };
+
+  const handleClaim = async (item) => {
+    const confirmed = window.confirm(
+      `Do you want to claim this ${item.type} item: ${item.itemName}?\n\nYou can contact: ${item.contactInfo}`
+    );
+    if (confirmed) {
+      alert(`Please contact ${item.contactInfo} to claim this item.`);
+      // Optionally download the item details
+      handleDownloadSubmittedItem(item);
+    }
+  };
+
   const filteredItems = items.filter((item) => {
     if (filter === 'all') return true;
+    // Show all items when viewing found section (both lost and found items are visible)
+    if (filter === 'found') return true;
     return item.type === filter;
   });
 
@@ -313,7 +337,17 @@ const LostFoundModule = () => {
                     <div className="mt-2 pt-2 border-t text-xs text-gray-500">
                       Posted by: {item.postedBy?.name || 'Anonymous'}
                     </div>
-                    <div className="mt-3 pt-2 border-t">
+                    <div className="mt-3 pt-2 border-t space-y-2">
+                      {(filter === 'found' || filter === 'all') && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleClaim(item)}
+                          className="w-full"
+                        >
+                          Claim Item
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"

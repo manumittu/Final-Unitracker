@@ -14,6 +14,7 @@ import GradeAppealModule from './modules/gradeAppeal/GradeAppealModule';
 import TimetableModule from './modules/timetable/TimetableModule';
 import QuizModule from './modules/quiz/QuizModule';
 import BusModule from './modules/bus/BusModule';
+import CanteenModule from './modules/canteen/CanteenModule';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -136,6 +137,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CoursesModule />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/modules/canteen"
+        element={
+          <ProtectedRoute>
+            <CanteenModule />
           </ProtectedRoute>
         }
       />

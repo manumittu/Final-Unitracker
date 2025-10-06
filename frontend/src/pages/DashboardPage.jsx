@@ -14,6 +14,7 @@ import {
   FaBook,
   FaUserCircle,
   FaSignOutAlt,
+  FaUtensils,
 } from 'react-icons/fa';
 
 const DashboardPage = () => {
@@ -112,6 +113,17 @@ const DashboardPage = () => {
       path: '/modules/courses',
       color: 'from-indigo-500 to-indigo-600',
       access: ['admin', 'student', 'professor'],
+    },
+    {
+      id: 'canteen',
+      title: 'Canteen Management',
+      description: isAdmin()
+        ? 'Manage menu items and view all orders'
+        : 'Order food from canteen',
+      icon: <FaUtensils size={40} />,
+      path: '/modules/canteen',
+      color: 'from-teal-500 to-teal-600',
+      access: ['admin', 'student', 'professor', 'canteen'],
     },
   ];
 
