@@ -181,19 +181,23 @@ const AuthPage = () => {
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="student">Student</option>
-                <option value="professor">Professor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <select
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="student">Student</option>
+                  <option value="professor">Professor</option>
+                  <option value="admin">Admin</option>
+                  <option value="canteen">Canteen Staff</option>
+                  <option value="bus">Bus Staff</option>
+                </select>
+              </div>
+            )}
 
             {errors.submit && (
               <p className="text-sm text-red-500 text-center">

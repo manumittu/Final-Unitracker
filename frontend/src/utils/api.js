@@ -110,3 +110,18 @@ export const gradeAppealAPI = {
   submit: (data) => api.post('/grade-appeals', data),
   updateStatus: (id, data) => api.put(`/grade-appeals/${id}/status`, data),
 };
+
+// Canteen API
+export const canteenAPI = {
+  // Menu endpoints
+  getMenu: () => api.get('/canteen/menu'),
+  createMenuItem: (data) => api.post('/canteen/menu', data),
+  updateMenuItem: (id, data) => api.put(`/canteen/menu/${id}`, data),
+  deleteMenuItem: (id) => api.delete(`/canteen/menu/${id}`),
+  
+  // Booking endpoints
+  getBookings: () => api.get('/canteen/booking'),
+  createBooking: (data) => api.post('/canteen/booking', data),
+  updateBooking: (id, data) => api.put(`/canteen/booking/${id}`, data),
+  deleteBooking: (id) => api.delete(`/canteen/booking/${id}`),
+};

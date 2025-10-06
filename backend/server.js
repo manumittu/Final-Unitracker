@@ -13,6 +13,7 @@ import lostFoundRoutes from './routes/lostFound.js';
 import projectRoutes from './routes/projects.js';
 import busRoutes from './routes/bus.js';
 import gradeAppealRoutes from './routes/gradeAppeals.js';
+import canteenRoutes from './routes/canteen.js';
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.use('/api/lost-found', lostFoundRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/bus', busRoutes);
 app.use('/api/grade-appeals', gradeAppealRoutes);
+app.use('/api/canteen', canteenRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
