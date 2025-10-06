@@ -39,6 +39,8 @@ export const authAPI = {
   signup: (data) => api.post('/auth/signup', data),
   login: (data) => api.post('/auth/login', data),
   getCurrentUser: () => api.get('/auth/me'),
+  getAccessRequests: (status) => api.get('/auth/access-requests', { params: { status } }),
+  updateAccessRequest: (userId, status) => api.put(`/auth/access-requests/${userId}`, { status }),
 };
 
 // Courses API

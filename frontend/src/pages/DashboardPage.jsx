@@ -15,6 +15,7 @@ import {
   FaUserCircle,
   FaSignOutAlt,
   FaUtensils,
+  FaUserCheck,
 } from 'react-icons/fa';
 
 const DashboardPage = () => {
@@ -124,6 +125,15 @@ const DashboardPage = () => {
       path: '/modules/canteen',
       color: 'from-teal-500 to-teal-600',
       access: ['admin', 'student', 'professor', 'canteen'],
+    },
+    {
+      id: 'access-requests',
+      title: 'Access Requests',
+      description: 'Approve or reject user access requests',
+      icon: <FaUserCheck size={40} />,
+      path: '/modules/access-requests',
+      color: 'from-cyan-500 to-cyan-600',
+      access: ['admin'],
     },
   ];
 

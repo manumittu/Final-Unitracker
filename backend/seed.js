@@ -27,6 +27,7 @@ const seedDatabase = async () => {
       email: 'admin@unitracker.com',
       password: hashedPassword,
       role: 'admin',
+      status: 'approved',
     });
 
     const student = await User.create({
@@ -34,6 +35,7 @@ const seedDatabase = async () => {
       email: 'student@unitracker.com',
       password: hashedPassword,
       role: 'student',
+      status: 'approved',
     });
 
     const professor = await User.create({
@@ -41,6 +43,7 @@ const seedDatabase = async () => {
       email: 'professor@unitracker.com',
       password: hashedPassword,
       role: 'professor',
+      status: 'approved',
     });
 
     console.log('✅ Created users:');
