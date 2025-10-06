@@ -1,0 +1,43 @@
+/* Navigation.module.css */
+.nav {
+    padding: 1rem;
+    background-color: #000000; /* black background */
+    margin-bottom: 2rem;
+    border-radius: 8px;
+  }
+  
+  .title {
+    margin: 0;
+    margin-bottom: 1rem;
+    color: #ff6f00; /* bright orange for title */
+  }
+  
+  .linkContainer {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .link {
+    padding: 0.5rem 1rem;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .lostLink {
+    background-color: #ff6f00; /* orange */
+  }
+  
+  .lostLink:hover {
+    background-color: #ff9100; /* lighter orange on hover */
+  }
+  
+  .foundLink {
+    background-color: #333333; /* dark gray for contrast */
+  }
+  
+  .foundLink:hover {
+    background-color: #555555; /* lighter gray on hover */
+  }
