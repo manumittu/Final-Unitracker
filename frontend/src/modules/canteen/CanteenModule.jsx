@@ -31,6 +31,7 @@ const CanteenModule = () => {
   const [bookingFormData, setBookingFormData] = useState({
     studentId: '',
     name: '',
+    canteenLocation: 'Main Canteen',
     date: new Date().toISOString().split('T')[0],
     timeSlot: '',
     foodItem: '',
@@ -106,6 +107,7 @@ const CanteenModule = () => {
       setBookingFormData({
         studentId: '',
         name: '',
+        canteenLocation: 'Main Canteen',
         date: new Date().toISOString().split('T')[0],
         timeSlot: '',
         foodItem: '',
@@ -199,12 +201,23 @@ const CanteenModule = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Input
+                <select
                   id="category"
                   name="category"
                   value={menuFormData.category}
                   onChange={handleMenuInputChange}
-                />
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">Select Category</option>
+                  <option value="Snacks">Snacks</option>
+                  <option value="Juices">Juices</option>
+                  <option value="Shakes">Shakes</option>
+                  <option value="Non-Veg">Non-Veg</option>
+                  <option value="Bread Items">Bread Items</option>
+                  <option value="Main Course">Main Course</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Desserts">Desserts</option>
+                </select>
               </div>
 
               <div className="space-y-2">
@@ -321,6 +334,24 @@ const CanteenModule = () => {
                   onChange={handleBookingInputChange}
                   required
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="canteenLocation">Canteen Location *</Label>
+                <select
+                  id="canteenLocation"
+                  name="canteenLocation"
+                  value={bookingFormData.canteenLocation}
+                  onChange={handleBookingInputChange}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  required
+                >
+                  <option value="Main Canteen">Main Canteen</option>
+                  <option value="Engineering Block Canteen">Engineering Block Canteen</option>
+                  <option value="Library Canteen">Library Canteen</option>
+                  <option value="Hostel Canteen">Hostel Canteen</option>
+                  <option value="Sports Complex Canteen">Sports Complex Canteen</option>
+                </select>
               </div>
 
               <div className="space-y-2">
@@ -461,8 +492,35 @@ const CanteenModule = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {menuItems.map((item) => (
+            <>
+              {/* Group items by category */}
+              {(() => {
+                // Create a map of categories
+                const categoryMap = {};
+                menuItems.forEach(item => {
+                  const category = item.category || 'Uncategorized';
+                  if (!categoryMap[category]) {
+                    categoryMap[category] = [];
+                  }
+                  categoryMap[category].push(item);
+                });
+
+                // Define category order for better organization
+                const categoryOrder = ['Snacks', 'Juices', 'Shakes', 'Non-Veg', 'Bread Items', 'Main Course', 'Beverages', 'Desserts', 'Uncategorized'];
+                const sortedCategories = Object.keys(categoryMap).sort((a, b) => {
+                  const indexA = categoryOrder.indexOf(a);
+                  const indexB = categoryOrder.indexOf(b);
+                  if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+                  if (indexA === -1) return 1;
+                  if (indexB === -1) return -1;
+                  return indexA - indexB;
+                });
+
+                return sortedCategories.map(category => (
+                  <div key={category} className="mb-8">
+                    <h4 className="text-lg font-semibold mb-3 text-blue-600">{category}</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {categoryMap[category].map((item) => (
                 <Card key={item._id} className={!item.availability ? 'opacity-60' : ''}>
                   <CardHeader>
                     <CardTitle className="flex justify-between items-start">
@@ -516,7 +574,11 @@ const CanteenModule = () => {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </>
           )}
         </div>
 
@@ -540,6 +602,7 @@ const CanteenModule = () => {
                       <div>
                         <p><strong>Food Item:</strong> {booking.foodItem}</p>
                         <p><strong>Quantity:</strong> {booking.quantity}</p>
+                        <p><strong>Canteen:</strong> {booking.canteenLocation || 'Main Canteen'}</p>
                         <p><strong>Date:</strong> {new Date(booking.date).toLocaleDateString()}</p>
                         <p><strong>Time Slot:</strong> {booking.timeSlot}</p>
                       </div>

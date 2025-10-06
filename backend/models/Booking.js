@@ -15,6 +15,10 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    canteenLocation: {
+      type: String,
+      default: 'Main Canteen',
+    },
     date: {
       type: Date,
       default: Date.now,

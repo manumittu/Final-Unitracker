@@ -67,6 +67,8 @@ export const quizAPI = {
   submitAnswer: (quizId, data) => api.post(`/quizzes/${quizId}/submit`, data),
   getResults: (quizId) => api.get(`/quizzes/${quizId}/results`),
   getAllResults: () => api.get('/quizzes/results/all'),
+  getLeaderboard: (quizId) => api.get(`/quizzes/${quizId}/leaderboard`),
+  resetQuiz: (quizId) => api.delete(`/quizzes/${quizId}/reset`),
 };
 
 // Feedback API

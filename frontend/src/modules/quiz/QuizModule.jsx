@@ -30,6 +30,8 @@ const QuizModule = () => {
   const [quizResult, setQuizResult] = useState(null);
   const [error, setError] = useState('');
   const [quizResults, setQuizResults] = useState({});
+  const [viewingLeaderboard, setViewingLeaderboard] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
 
   const canCreateQuiz = isAdmin() || user?.role === 'professor';
 
@@ -173,6 +175,30 @@ const QuizModule = () => {
         fetchQuizzes();
       } catch (err) {
         setError('Failed to delete quiz');
+      }
+    }
+  };
+
+  const handleViewLeaderboard = async (quiz) => {
+    try {
+      const response = await quizAPI.getLeaderboard(quiz._id);
+      setLeaderboard(response.data);
+      setViewingLeaderboard(quiz);
+    } catch (err) {
+      setError('Failed to fetch leaderboard');
+      console.error(err);
+    }
+  };
+
+  const handleResetQuiz = async (quizId) => {
+    if (window.confirm('Are you sure you want to reset this quiz? All student results will be deleted and they can retake the quiz.')) {
+      try {
+        await quizAPI.resetQuiz(quizId);
+        alert('Quiz reset successfully! Students can now retake the quiz.');
+        fetchQuizzes();
+      } catch (err) {
+        setError('Failed to reset quiz');
+        console.error(err);
       }
     }
   };
@@ -429,6 +455,92 @@ const QuizModule = () => {
     );
   }
 
+  // Leaderboard view
+  if (viewingLeaderboard) {
+    return (
+      <ModuleLayout title={`Leaderboard: ${viewingLeaderboard.name}`}>
+        <div className="max-w-5xl mx-auto space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-3xl">Quiz Leaderboard</CardTitle>
+              <CardDescription className="text-center">
+                {leaderboard.length} participant{leaderboard.length !== 1 ? 's' : ''}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {leaderboard.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">No one has attempted this quiz yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="border border-gray-300 p-3 text-left">Rank</th>
+                        <th className="border border-gray-300 p-3 text-left">Name</th>
+                        <th className="border border-gray-300 p-3 text-left">Email</th>
+                        <th className="border border-gray-300 p-3 text-center">Score</th>
+                        <th className="border border-gray-300 p-3 text-center">Percentage</th>
+                        <th className="border border-gray-300 p-3 text-left">Attempted At</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leaderboard.map((entry, index) => (
+                        <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                          <td className="border border-gray-300 p-3">
+                            <span className={`font-bold ${index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-600' : ''}`}>
+                              {entry.rank}
+                              {index === 0 && ' 🥇'}
+                              {index === 1 && ' 🥈'}
+                              {index === 2 && ' 🥉'}
+                            </span>
+                          </td>
+                          <td className="border border-gray-300 p-3">{entry.name}</td>
+                          <td className="border border-gray-300 p-3">{entry.email}</td>
+                          <td className="border border-gray-300 p-3 text-center">
+                            {entry.score} / {entry.total}
+                          </td>
+                          <td className="border border-gray-300 p-3 text-center">
+                            <span className={`font-semibold ${entry.percentage >= 80 ? 'text-green-600' : entry.percentage >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                              {entry.percentage}%
+                            </span>
+                          </td>
+                          <td className="border border-gray-300 p-3">
+                            {new Date(entry.attemptedAt).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-center gap-4">
+            <Button onClick={() => {
+              setViewingLeaderboard(null);
+              setLeaderboard([]);
+            }}>
+              Back to Quizzes
+            </Button>
+            {canCreateQuiz && (
+              <Button 
+                variant="destructive"
+                onClick={() => {
+                  handleResetQuiz(viewingLeaderboard._id);
+                  setViewingLeaderboard(null);
+                  setLeaderboard([]);
+                }}
+              >
+                Reset Quiz
+              </Button>
+            )}
+          </div>
+        </div>
+      </ModuleLayout>
+    );
+  }
+
   // Quiz form view
   if (showForm) {
     return (
@@ -639,11 +751,26 @@ const QuizModule = () => {
                       <>
                         <Button
                           variant="outline"
+                          onClick={() => handleViewLeaderboard(quiz)}
+                          className="w-full"
+                        >
+                          <FaChartBar className="mr-2" />
+                          View Leaderboard
+                        </Button>
+                        <Button
+                          variant="outline"
                           onClick={() => handleEdit(quiz)}
                           className="w-full"
                         >
                           <FaEdit className="mr-2" />
                           Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleResetQuiz(quiz._id)}
+                          className="w-full text-orange-600 hover:text-orange-700"
+                        >
+                          Reset Quiz
                         </Button>
                         <Button
                           variant="destructive"
