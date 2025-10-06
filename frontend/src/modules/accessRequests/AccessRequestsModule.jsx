@@ -55,6 +55,21 @@ const AccessRequestsModule = () => {
     }
   };
 
+  const handleDelete = async (userId, userName) => {
+    if (window.confirm(`Are you sure you want to permanently delete user "${userName}"? This action cannot be undone.`)) {
+      try {
+        await authAPI.deleteUser(userId);
+        fetchRequests();
+        alert('User deleted successfully');
+      } catch (err) {
+        const errorMsg = err.response?.data?.msg || 'Failed to delete user';
+        setError(errorMsg);
+        alert(errorMsg);
+        console.error(err);
+      }
+    }
+  };
+
   const getStatusBadge = (status) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-700',
@@ -213,6 +228,19 @@ const AccessRequestsModule = () => {
                           className="flex-1"
                         >
                           Reject
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Delete button - available for all non-admin users */}
+                    {request.role !== 'admin' && (
+                      <div className={`flex gap-2 ${request.status === 'pending' ? '' : 'pt-4 border-t'}`}>
+                        <Button
+                          onClick={() => handleDelete(request._id, request.name)}
+                          variant="destructive"
+                          className="w-full bg-red-600 hover:bg-red-700"
+                        >
+                          Delete User
                         </Button>
                       </div>
                     )}

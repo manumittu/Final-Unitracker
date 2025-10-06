@@ -170,4 +170,45 @@ router.put('/access-requests/:userId', authenticateToken, async (req, res) => {
   }
 });
 
+// Admin: Delete user
+router.delete('/users/:userId', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ msg: 'Access denied. Admin only.' });
+    }
+
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Don't allow deleting admin users
+    if (user.role === 'admin') {
+      return res.status(400).json({ msg: 'Cannot delete admin users' });
+    }
+
+    // Don't allow deleting yourself
+    if (userId === req.user.id) {
+      return res.status(400).json({ msg: 'Cannot delete your own account' });
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    res.json({ 
+      msg: 'User deleted successfully',
+      deletedUser: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

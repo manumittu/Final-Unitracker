@@ -41,6 +41,7 @@ export const authAPI = {
   getCurrentUser: () => api.get('/auth/me'),
   getAccessRequests: (status) => api.get('/auth/access-requests', { params: { status } }),
   updateAccessRequest: (userId, status) => api.put(`/auth/access-requests/${userId}`, { status }),
+  deleteUser: (userId) => api.delete(`/auth/users/${userId}`),
 };
 
 // Courses API
