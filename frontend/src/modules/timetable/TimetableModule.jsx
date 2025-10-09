@@ -16,7 +16,7 @@ const TimetableModule = () => {
   const [editData, setEditData] = useState({});
   const [error, setError] = useState('');
   const [customizingTimeSlots, setCustomizingTimeSlots] = useState(false);
-  const [timeSlots, setTimeSlots] = useState(['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-1:00', '2:00-3:00', '3:00-4:00']);
+  const [timeSlots, setTimeSlots] = useState(['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-1:00', '1:00-2:00', '2:00-3:00', '3:00-4:00']);
   const [newTimeSlot, setNewTimeSlot] = useState('');
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -38,12 +38,19 @@ const TimetableModule = () => {
           setTimeSlots(response.data.timeSlots);
         }
       } else {
-        // Initialize empty timetable
+        // Initialize empty timetable with default slots
         const emptySchedule = {};
+        const defaultSlots = ['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-1:00', '1:00-2:00', '2:00-3:00', '3:00-4:00'];
+        setTimeSlots(defaultSlots);
         days.forEach(day => {
           emptySchedule[day] = {};
-          periods.forEach(period => {
-            emptySchedule[day][period] = { subject: '', teacher: '', room: '' };
+          defaultSlots.forEach(period => {
+            // Set lunch break as default
+            if (period === '12:00-1:00') {
+              emptySchedule[day][period] = { subject: 'LUNCH BREAK', teacher: '', room: '', isBreak: true };
+            } else {
+              emptySchedule[day][period] = { subject: '', teacher: '', room: '', isBreak: false };
+            }
           });
         });
         setEditData({ schedule: emptySchedule });
@@ -72,6 +79,27 @@ const TimetableModule = () => {
     });
   };
 
+  const toggleBreak = (day, period) => {
+    const currentCell = editData.schedule[day][period];
+    const isBreak = !currentCell.isBreak;
+    
+    setEditData({
+      ...editData,
+      schedule: {
+        ...editData.schedule,
+        [day]: {
+          ...editData.schedule[day],
+          [period]: {
+            subject: isBreak ? 'BREAK' : '',
+            teacher: '',
+            room: '',
+            isBreak: isBreak,
+          },
+        },
+      },
+    });
+  };
+
   const handleSave = async () => {
     try {
       const dataToSave = {
@@ -94,10 +122,16 @@ const TimetableModule = () => {
         await timetableAPI.delete();
         setTimetable(null);
         const emptySchedule = {};
+        const defaultSlots = ['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-1:00', '1:00-2:00', '2:00-3:00', '3:00-4:00'];
+        setTimeSlots(defaultSlots);
         days.forEach(day => {
           emptySchedule[day] = {};
-          periods.forEach(period => {
-            emptySchedule[day][period] = { subject: '', teacher: '', room: '' };
+          defaultSlots.forEach(period => {
+            if (period === '12:00-1:00') {
+              emptySchedule[day][period] = { subject: 'LUNCH BREAK', teacher: '', room: '', isBreak: true };
+            } else {
+              emptySchedule[day][period] = { subject: '', teacher: '', room: '', isBreak: false };
+            }
           });
         });
         setEditData({ schedule: emptySchedule });
@@ -117,7 +151,7 @@ const TimetableModule = () => {
       const updatedSchedule = { ...editData.schedule };
       days.forEach(day => {
         if (!updatedSchedule[day]) updatedSchedule[day] = {};
-        updatedSchedule[day][newTimeSlot] = { subject: '', teacher: '', room: '' };
+        updatedSchedule[day][newTimeSlot] = { subject: '', teacher: '', room: '', isBreak: false };
       });
       setEditData({ ...editData, schedule: updatedSchedule });
       setNewTimeSlot('');
@@ -287,45 +321,76 @@ const TimetableModule = () => {
                           {day}
                         </td>
                         {periods.map((period) => {
-                          const cell = editData.schedule?.[day]?.[period] || { subject: '', teacher: '', room: '' };
+                          const cell = editData.schedule?.[day]?.[period] || { subject: '', teacher: '', room: '', isBreak: false };
                           return (
-                            <td key={period} className="border border-gray-300 p-3">
+                            <td 
+                              key={period} 
+                              className={`border border-gray-300 p-3 ${cell.isBreak ? 'bg-yellow-50' : ''}`}
+                            >
                               {editMode && isAdmin() ? (
                                 <div className="space-y-2">
-                                  <Input
-                                    placeholder="Subject"
-                                    value={cell.subject}
-                                    onChange={(e) =>
-                                      handleCellChange(day, period, 'subject', e.target.value)
-                                    }
-                                    className="text-sm"
-                                  />
-                                  <Input
-                                    placeholder="Teacher"
-                                    value={cell.teacher}
-                                    onChange={(e) =>
-                                      handleCellChange(day, period, 'teacher', e.target.value)
-                                    }
-                                    className="text-sm"
-                                  />
-                                  <Input
-                                    placeholder="Room"
-                                    value={cell.room}
-                                    onChange={(e) =>
-                                      handleCellChange(day, period, 'room', e.target.value)
-                                    }
-                                    className="text-sm"
-                                  />
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <label className="flex items-center text-xs cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={cell.isBreak || false}
+                                        onChange={() => toggleBreak(day, period)}
+                                        className="mr-1"
+                                      />
+                                      <span className="font-medium">Mark as Break</span>
+                                    </label>
+                                  </div>
+                                  {!cell.isBreak && (
+                                    <>
+                                      <Input
+                                        placeholder="Subject"
+                                        value={cell.subject}
+                                        onChange={(e) =>
+                                          handleCellChange(day, period, 'subject', e.target.value)
+                                        }
+                                        className="text-sm"
+                                      />
+                                      <Input
+                                        placeholder="Teacher"
+                                        value={cell.teacher}
+                                        onChange={(e) =>
+                                          handleCellChange(day, period, 'teacher', e.target.value)
+                                        }
+                                        className="text-sm"
+                                      />
+                                      <Input
+                                        placeholder="Room"
+                                        value={cell.room}
+                                        onChange={(e) =>
+                                          handleCellChange(day, period, 'room', e.target.value)
+                                        }
+                                        className="text-sm"
+                                      />
+                                    </>
+                                  )}
+                                  {cell.isBreak && (
+                                    <div className="text-center py-2">
+                                      <span className="font-semibold text-yellow-700">
+                                        {cell.subject || 'BREAK'}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               ) : (
                                 <div className="text-sm">
-                                  {cell.subject && (
+                                  {cell.isBreak ? (
+                                    <div className="text-center py-2">
+                                      <span className="font-semibold text-yellow-700">
+                                        {cell.subject || 'BREAK'}
+                                      </span>
+                                    </div>
+                                  ) : cell.subject ? (
                                     <>
                                       <div className="font-semibold text-blue-600">{cell.subject}</div>
                                       {cell.teacher && <div className="text-gray-600">{cell.teacher}</div>}
                                       {cell.room && <div className="text-gray-500 text-xs">Room: {cell.room}</div>}
                                     </>
-                                  )}
+                                  ) : null}
                                 </div>
                               )}
                             </td>

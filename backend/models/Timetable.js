@@ -4,17 +4,22 @@ const timetableSchema = new mongoose.Schema(
   {
     classrooms: {
       type: Number,
-      required: true,
+      required: false,
     },
     subjectMap: {
       type: Map,
       of: [String],
-      required: true,
+      required: false,
     },
     timetable: {
       type: Map,
       of: mongoose.Schema.Types.Mixed,
-      required: true,
+      required: false,
+    },
+    schedule: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      required: false,
     },
     timeSlots: {
       type: [String],
@@ -23,7 +28,7 @@ const timetableSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: false,
     },
   },
   {
