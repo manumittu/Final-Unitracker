@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaEdit, FaTrash, FaDownload } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaDownload, FaChartPie } from 'react-icons/fa';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const CoursesModule = () => {
@@ -24,6 +24,7 @@ const CoursesModule = () => {
     instructor: '',
   });
   const [error, setError] = useState('');
+  const [showVisualizations, setShowVisualizations] = useState(false);
 
   const downloadAsTextFile = (content, filename) => {
     const blob = new Blob([content], { type: 'text/plain' });
@@ -47,6 +48,36 @@ const CoursesModule = () => {
     content += `Description: ${formData.description}\n`;
     
     const filename = `course_${formData.code.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
+
+  const handleDownloadCoursesReport = () => {
+    let content = `Courses Report\n`;
+    content += `Generated on: ${new Date().toLocaleString()}\n`;
+    content += `Total Courses: ${courses.length}\n\n`;
+    content += `=`.repeat(80) + `\n\n`;
+    
+    courses.forEach((course, index) => {
+      content += `${index + 1}. ${course.code} - ${course.name}\n`;
+      content += `   Credits: ${course.credits}\n`;
+      content += `   Department: ${course.department}\n`;
+      if (course.instructor) {
+        content += `   Instructor: ${course.instructor}\n`;
+      }
+      if (course.description) {
+        content += `   Description: ${course.description}\n`;
+      }
+      content += `\n`;
+    });
+
+    content += `=`.repeat(80) + `\n`;
+    content += `Summary:\n`;
+    content += `Total Courses: ${courses.length}\n`;
+    content += `Total Credits: ${courses.reduce((sum, course) => sum + parseInt(course.credits || 0), 0)}\n`;
+    content += `Departments: ${new Set(courses.map(c => c.department)).size}\n`;
+    content += `Average Credits: ${(courses.reduce((sum, course) => sum + parseInt(course.credits || 0), 0) / courses.length).toFixed(1)}\n`;
+    
+    const filename = `courses_report_${Date.now()}.txt`;
     downloadAsTextFile(content, filename);
   };
 
@@ -127,52 +158,23 @@ const CoursesModule = () => {
     );
   }
 
-  return (
-    <ModuleLayout title="Course Management">
-      <div className="space-y-6">
-        {/* Header Actions */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">
-              {isAdmin() ? 'Manage Courses' : 'View Courses'}
-            </h2>
-            <p className="text-gray-600">
-              {isAdmin()
-                ? 'Create, edit, or delete courses'
-                : 'Browse available courses'}
-            </p>
-          </div>
-          {isAdmin() && (
+  // Visualizations view
+  if (showVisualizations) {
+    return (
+      <ModuleLayout title="Course Analytics">
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Course Statistics & Visualizations</h2>
             <Button
-              onClick={() => {
-                setShowForm(true);
-                setEditingId(null);
-                setFormData({
-                  code: '',
-                  name: '',
-                  credits: '',
-                  department: '',
-                  description: '',
-                  instructor: '',
-                });
-              }}
+              variant="outline"
+              onClick={() => setShowVisualizations(false)}
             >
-              <FaPlus className="mr-2" />
-              Add Course
+              Back to Courses
             </Button>
-          )}
-        </div>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            {error}
           </div>
-        )}
 
-        {/* Course Statistics Visualization */}
-        {courses.length > 0 && (
+          {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Statistics Cards */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-gray-600">Total Courses</CardTitle>
@@ -212,10 +214,8 @@ const CoursesModule = () => {
               </CardContent>
             </Card>
           </div>
-        )}
 
-        {/* Visualization Charts */}
-        {courses.length > 0 && (
+          {/* Visualization Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pie Chart - Credits by Department */}
             <Card>
@@ -279,6 +279,69 @@ const CoursesModule = () => {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </ModuleLayout>
+    );
+  }
+
+  return (
+    <ModuleLayout title="Course Management">
+      <div className="space-y-6">
+        {/* Header Actions */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">
+              {isAdmin() ? 'Manage Courses' : 'View Courses'}
+            </h2>
+            <p className="text-gray-600">
+              {isAdmin()
+                ? 'Create, edit, or delete courses'
+                : 'Browse available courses'}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {courses.length > 0 && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowVisualizations(true)}
+                >
+                  <FaChartPie className="mr-2" /> View Analytics
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleDownloadCoursesReport}
+                >
+                  <FaDownload className="mr-2" /> Download Report
+                </Button>
+              </>
+            )}
+            {isAdmin() && (
+              <Button
+                onClick={() => {
+                  setShowForm(true);
+                  setEditingId(null);
+                  setFormData({
+                    code: '',
+                    name: '',
+                    credits: '',
+                    department: '',
+                    description: '',
+                    instructor: '',
+                  });
+                }}
+              >
+                <FaPlus className="mr-2" />
+                Add Course
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
           </div>
         )}
 

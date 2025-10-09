@@ -6,7 +6,8 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { FaPlus, FaEdit, FaTrash, FaBus, FaTicketAlt, FaDownload } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaBus, FaTicketAlt, FaDownload, FaChartPie } from 'react-icons/fa';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const BusModule = () => {
   const { isAdmin } = useAuth();
@@ -31,6 +32,7 @@ const BusModule = () => {
     seatsBooked: 1,
   });
   const [error, setError] = useState('');
+  const [showVisualizations, setShowVisualizations] = useState(false);
 
   const downloadAsTextFile = (content, filename) => {
     const blob = new Blob([content], { type: 'text/plain' });
@@ -71,6 +73,34 @@ const BusModule = () => {
     }
     
     const filename = `bus_booking_${Date.now()}.txt`;
+    downloadAsTextFile(content, filename);
+  };
+
+  const handleDownloadReservationsReport = () => {
+    let content = `Bus Reservations Report\n`;
+    content += `Generated on: ${new Date().toLocaleString()}\n`;
+    content += `Total Bookings: ${bookings.length}\n\n`;
+    content += `=`.repeat(80) + `\n\n`;
+    
+    bookings.forEach((booking, index) => {
+      const route = routes.find(r => r._id === booking.route);
+      content += `${index + 1}. Booking ID: ${booking._id}\n`;
+      if (route) {
+        content += `   Route: ${route.routeName} (${route.from} → ${route.to})\n`;
+        content += `   Departure Time: ${route.departureTime}\n`;
+      }
+      content += `   Date: ${new Date(booking.date).toLocaleDateString()}\n`;
+      content += `   Seats: ${booking.seatsBooked}\n`;
+      content += `   Status: ${booking.status || 'Active'}\n`;
+      content += `\n`;
+    });
+
+    content += `=`.repeat(80) + `\n`;
+    content += `Summary:\n`;
+    content += `Total Bookings: ${bookings.length}\n`;
+    content += `Total Seats Booked: ${bookings.reduce((sum, b) => sum + (b.seatsBooked || 0), 0)}\n`;
+    
+    const filename = `bus_reservations_report_${Date.now()}.txt`;
     downloadAsTextFile(content, filename);
   };
 
@@ -194,6 +224,133 @@ const BusModule = () => {
     return (
       <ModuleLayout title="Bus Reservation">
         <div className="text-center py-8">Loading...</div>
+      </ModuleLayout>
+    );
+  }
+
+  // Visualizations view
+  if (showVisualizations) {
+    // Calculate most taken route
+    const routeBookingCount = bookings.reduce((acc, booking) => {
+      const routeId = booking.route;
+      acc[routeId] = (acc[routeId] || 0) + 1;
+      return acc;
+    }, {});
+
+    const routeStats = routes.map(route => ({
+      name: route.routeName,
+      bookings: routeBookingCount[route._id] || 0,
+      revenue: (routeBookingCount[route._id] || 0) * route.fare,
+    })).sort((a, b) => b.bookings - a.bookings);
+
+    const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d0ed57', '#83a6ed'];
+
+    return (
+      <ModuleLayout title="Bus Analytics">
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Bus Reservation Statistics & Visualizations</h2>
+            <Button
+              variant="outline"
+              onClick={() => setShowVisualizations(false)}
+            >
+              Back to Reservations
+            </Button>
+          </div>
+
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Routes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-600">{routes.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Bookings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600">{bookings.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Seats Booked</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-600">
+                  {bookings.reduce((sum, b) => sum + (b.seatsBooked || 0), 0)}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600">Most Popular Route</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-bold text-orange-600">
+                  {routeStats.length > 0 ? routeStats[0].name : 'N/A'}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Visualization Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pie Chart - Most Taken Routes */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Most Taken Routes</CardTitle>
+                <CardDescription>Booking distribution by route</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={routeStats.filter(r => r.bookings > 0)}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent, bookings }) => `${name}: ${bookings} (${(percent * 100).toFixed(0)}%)`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="bookings"
+                    >
+                      {routeStats.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Bar Chart - Bookings per Route */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Bookings per Route</CardTitle>
+                <CardDescription>Number of bookings for each route</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={routeStats.filter(r => r.bookings > 0)}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="bookings" fill="#8884d8" name="Number of Bookings" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </ModuleLayout>
     );
   }
@@ -547,11 +704,29 @@ const BusModule = () => {
 
         {/* My Bookings */}
         <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold">
-              {isAdmin() ? 'All Bookings' : 'My Bookings'}
-            </h2>
-            <p className="text-gray-600">View and manage your bookings</p>
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-bold">
+                {isAdmin() ? 'All Bookings' : 'My Bookings'}
+              </h2>
+              <p className="text-gray-600">View and manage your bookings</p>
+            </div>
+            {bookings.length > 0 && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowVisualizations(true)}
+                >
+                  <FaChartPie className="mr-2" /> View Analytics
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleDownloadReservationsReport}
+                >
+                  <FaDownload className="mr-2" /> Download Report
+                </Button>
+              </div>
+            )}
           </div>
 
           {bookings.length === 0 ? (

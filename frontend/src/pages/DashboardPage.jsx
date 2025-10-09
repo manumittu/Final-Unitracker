@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
+import { useTheme } from '../utils/ThemeContext';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import {
@@ -16,10 +17,13 @@ import {
   FaSignOutAlt,
   FaUtensils,
   FaUserCheck,
+  FaMoon,
+  FaSun,
 } from 'react-icons/fa';
 
 const DashboardPage = () => {
   const { user, logout, isAdmin } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -143,21 +147,37 @@ const DashboardPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white shadow-md">
+      <header className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/dashboard" className="flex items-center space-x-2">
-              <h1 className="text-2xl font-bold text-blue-600">UniTracker</h1>
+            <Link to="/dashboard" className="flex items-center space-x-3 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                <span className="text-white font-bold text-xl">U</span>
+              </div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                UniTracker
+              </h1>
             </Link>
             
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <FaUserCircle size={24} className="text-gray-600" />
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleTheme}
+                className="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? <FaMoon className="text-blue-600" /> : <FaSun className="text-yellow-400" />}
+                <span className="hidden sm:inline">{theme === 'light' ? 'Dark' : 'Light'}</span>
+              </Button>
+              
+              <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <FaUserCircle size={24} className="text-blue-600 dark:text-blue-400" />
                 <div className="text-sm">
-                  <p className="font-semibold text-gray-800">{user?.name}</p>
-                  <p className="text-gray-500 capitalize">{user?.role}</p>
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">{user?.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
                 </div>
               </div>
               
@@ -165,10 +185,10 @@ const DashboardPage = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 transition-colors"
               >
                 <FaSignOutAlt />
-                <span>Logout</span>
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -177,12 +197,12 @@ const DashboardPage = () => {
 
       {/* Dashboard Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="mb-10">
+          <h2 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-3 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
             Welcome back, {user?.name}!
           </h2>
-          <p className="text-gray-600">
-            Select a module below to get started
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Select a module below to get started with your university activities
           </p>
         </div>
 
@@ -190,17 +210,17 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {accessibleModules.map((module) => (
             <Link key={module.id} to={module.path}>
-              <Card className="h-full hover:shadow-2xl transition-all transform hover:-translate-y-2 cursor-pointer border-2 hover:border-primary">
-                <CardHeader className={`bg-gradient-to-r ${module.color} text-white rounded-t-lg`}>
-                  <div className="flex justify-center mb-2">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border-2 hover:border-primary dark:bg-gray-800/80 dark:border-gray-700 dark:hover:border-primary backdrop-blur-sm">
+                <CardHeader className={`bg-gradient-to-r ${module.color} text-white rounded-t-lg p-6 shadow-md`}>
+                  <div className="flex justify-center mb-3 transform transition-transform duration-300 hover:scale-110">
                     {module.icon}
                   </div>
-                  <CardTitle className="text-center text-xl">
+                  <CardTitle className="text-center text-xl font-bold">
                     {module.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
-                  <CardDescription className="text-center text-gray-600">
+                <CardContent className="pt-6 pb-4">
+                  <CardDescription className="text-center text-gray-600 dark:text-gray-300 leading-relaxed">
                     {module.description}
                   </CardDescription>
                 </CardContent>
