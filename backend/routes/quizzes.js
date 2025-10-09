@@ -149,16 +149,18 @@ router.get('/:id/leaderboard', authenticateToken, isProfessor, async (req, res) 
       .populate('user', 'name email')
       .sort({ score: -1, createdAt: 1 });
     
-    // Format leaderboard with rankings
-    const leaderboard = results.map((result, index) => ({
-      rank: index + 1,
-      name: result.user.name,
-      email: result.user.email,
-      score: result.score,
-      total: result.total,
-      percentage: Math.round((result.score / result.total) * 100),
-      attemptedAt: result.createdAt,
-    }));
+    // Filter out results where user has been deleted and format leaderboard with rankings
+    const leaderboard = results
+      .filter(result => result.user) // Skip results where user is null
+      .map((result, index) => ({
+        rank: index + 1,
+        name: result.user.name,
+        email: result.user.email,
+        score: result.score,
+        total: result.total,
+        percentage: Math.round((result.score / result.total) * 100),
+        attemptedAt: result.createdAt,
+      }));
     
     res.json(leaderboard);
   } catch (err) {
