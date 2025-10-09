@@ -275,6 +275,10 @@ const seedDatabase = async () => {
     console.log(`✅ Created ${quizzes.length} sample quizzes with questions`);
 
     console.log('\n🎉 Database seeded successfully!');
+    console.log('\n📚 Sample Quizzes Created:');
+    quizzes.forEach((quiz) => {
+      console.log(`   - ${quiz.name} (${quiz.questions.length} questions)`);
+    });
     console.log('\nYou can now login with any of these accounts:');
     console.log('Email: admin@unitracker.com | Password: password123 | Role: Admin');
     console.log('Email: student@unitracker.com | Password: password123 | Role: Student');
