@@ -977,6 +977,11 @@ All API endpoints are prefixed with `/api` and return JSON responses.
    - 3 test users (admin, student, professor) with password: `password123`
    - 5 sample courses
    - 3 bus routes
+   - 4 sample quizzes with questions:
+     - Introduction to Computer Science (5 questions)
+     - Mathematics Fundamentals (6 questions)
+     - General Knowledge Quiz (7 questions)
+     - Physics Basics (5 questions)
 
 6. **Start the application**:
    ```bash
